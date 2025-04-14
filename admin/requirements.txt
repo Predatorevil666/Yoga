@@ -1,0 +1,6 @@
+email_validator==2.2.0
+psycopg2-binary==2.9.10
+SQLAlchemy==2.0.36
+Flask==3.0.3
+Flask-Admin==1.6.1
+wtforms==3.2.1
