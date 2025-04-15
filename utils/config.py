@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+import os
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -20,6 +21,6 @@ class Settings(BaseSettings):
     PYTHONPATH: str
 
     class Config:
-        env_file = ".env"
+        env_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 
 settings = Settings()
