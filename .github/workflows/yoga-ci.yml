@@ -52,7 +52,7 @@ jobs:
 
       - name: Copy isort config
         run: |
-          cp ./pyproject.toml ./${{ matrix.service }}backend/pyproject.toml
+          cp ./pyproject.toml ./${{ matrix.service }}/backend/pyproject.toml
 
       - name: Run isort check
         run: |
@@ -144,7 +144,7 @@ jobs:
 
   send_message:
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: backend_tests
     steps:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
