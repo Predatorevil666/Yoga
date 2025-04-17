@@ -1,6 +1,6 @@
 __pycache__
 .pytest_cache
-.vscode
+
 
 # Environments
 .env
@@ -10,3 +10,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# .idea
+.idea
+.vscode
+
+# mypy
+.mypy_cache/

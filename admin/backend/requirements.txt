@@ -6,3 +6,5 @@ python-multipart==0.0.12
 SQLAlchemy==2.0.36
 sqlmodel==0.0.22
 uvicorn==0.32.0
+flake8==7.2.0
+isort==6.0.1

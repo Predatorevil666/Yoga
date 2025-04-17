@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
+
 import pytest
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
+
 from application.backend.main import app
-from utils.models import *
+from utils.models import Branch, GroupClass, Service, TimeSlot, Trainer
 
 # URL для тестовой базы данных
 TEST_DATABASE_URL = "postgresql://postgres:Worldof123@localhost/test_db"

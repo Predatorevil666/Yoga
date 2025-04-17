@@ -9,3 +9,5 @@ uvicorn==0.32.0
 passlib==1.7.4
 pyjwt==2.9.0
 aiogram==3.14.0
+flake8==7.2.0
+isort==6.0.1
