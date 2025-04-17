@@ -72,11 +72,10 @@ jobs:
           cd ${{ matrix.service }}/backend && mypy . 1> ./mypy.log 2> ./mypy.error.log || true
 
       - name: Run tests
+        if: matrix.service != 'auth'
         run: |
-          # cd ${{ matrix.service }}/backend
-          # pytest tests/ -v
-          if: matrix.service != 'auth'
-          run: pytest tests -v  # Запускаем тесты из корня проекта
+          cd ${{ matrix.service }}/backend
+          pytest ../../tests -v
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
