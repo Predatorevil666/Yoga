@@ -1,10 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import asyncio
+from bot.main import start_bot
 from contextlib import asynccontextmanager
 from database import db
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routes import router as auth_router
-from bot.main import start_bot
 
 
 @asynccontextmanager
@@ -12,13 +12,14 @@ async def lifespan(app: FastAPI):
     db.create_db_and_tables()
 
     bot_task = asyncio.create_task(start_bot())
-    yield 
+    yield
     bot_task.cancel()
-    
+
     try:
         await bot_task
     except asyncio.CancelledError:
         pass
+
 
 app = FastAPI(lifespan=lifespan)
 

@@ -1,6 +1,9 @@
 from typing import Generator
+
 from sqlmodel import SQLModel, Session, create_engine
+
 from utils.config import settings
+
 
 class Database:
     def __init__(self, database_url: str, echo: bool = False):
@@ -13,7 +16,5 @@ class Database:
         with Session(self.engine) as session:
             yield session
 
-db = Database(
-    database_url=settings.DATABASE_URL,
-    echo=settings.ECHO_SQL
-)
+
+db = Database(database_url=settings.DATABASE_URL, echo=settings.ECHO_SQL)

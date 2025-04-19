@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
+
 from fastapi import HTTPException
 import jwt
-from jwt import ExpiredSignatureError, DecodeError
+from jwt import DecodeError, ExpiredSignatureError
+from passlib.context import CryptContext
 
 
 class PasswordManager:
@@ -21,7 +22,9 @@ class TokenService:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def create_access_token(self, data: dict, expires_delta: timedelta = timedelta(days=30)):
+    def create_access_token(
+        self, data: dict, expires_delta: timedelta = timedelta(days=30)
+    ):
         to_encode = data.copy()
         expire = datetime.utcnow() + expires_delta
         to_encode.update({"exp": expire})
@@ -29,8 +32,12 @@ class TokenService:
 
     def verify_access_token(self, token: str) -> dict:
         try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[
-                                 self.algorithm], options={"verify_exp": True})
+            payload = jwt.decode(
+                token,
+                self.secret_key,
+                algorithms=[self.algorithm],
+                options={"verify_exp": True},
+            )
             return payload
         except ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token has expired")
@@ -38,7 +45,8 @@ class TokenService:
             raise HTTPException(status_code=401, detail="Token is invalid")
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Token verification failed: {str(e)}")
+                status_code=500, detail=f"Token verification failed: {str(e)}"
+            )
 
 
 SECRET_KEY = "pass"

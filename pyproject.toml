@@ -3,13 +3,7 @@
 profile = "black"
 line_length = 79
 
-# Локальные Django-приложения  проекта
-known_first_party = [
-    "recipes",
-    "users",
-    "api",
-    "foodgram" 
-]
+
 
 # Строгое разделение по PEP 8
 sections = [

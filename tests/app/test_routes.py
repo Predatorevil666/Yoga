@@ -4,6 +4,7 @@ from sqlmodel import select
 
 from utils.models import Booking, GroupClass, Service, TimeSlot, Trainer
 
+
 # Тесты
 
 
@@ -44,17 +45,22 @@ def test_get_timeslots(test_client, test_session):
     assert trainer is not None, "Тренер не найден"
     assert service is not None, "Услуга не найдена"
 
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.trainer_id == trainer.id, TimeSlot.service_id == service.id
-    ).first()
+    timeslot = (
+        test_session.query(TimeSlot)
+        .filter(TimeSlot.trainer_id == trainer.id, TimeSlot.service_id == service.id)
+        .first()
+    )
 
     assert timeslot is not None, "Таймслот не найден"
 
-    response = test_client.get("/api/timeslots", params={
-        "service_id": service.id,
-        "trainerId": trainer.id,
-        "date": timeslot.dates
-    })
+    response = test_client.get(
+        "/api/timeslots",
+        params={
+            "service_id": service.id,
+            "trainerId": trainer.id,
+            "date": timeslot.dates,
+        },
+    )
 
     assert response.status_code == 200
     timeslots = response.json()
@@ -68,8 +74,7 @@ def test_get_timeslots(test_client, test_session):
 
 def test_group_classes(test_client):
     response = test_client.get(
-        "/api/group-classes",
-        params={"date": datetime.now() + timedelta(days=1)}
+        "/api/group-classes", params={"date": datetime.now() + timedelta(days=1)}
     )
     assert response.status_code == 200
     data = response.json()
@@ -81,8 +86,7 @@ def test_group_classes(test_client):
 
 def test_get_group_classes_no_available_data(test_client):
     response = test_client.get(
-        "/api/group-classes",
-        params={"date": datetime.now() + timedelta(days=2)}
+        "/api/group-classes", params={"date": datetime.now() + timedelta(days=2)}
     )
     assert response.status_code == 200
     assert response.json() == []
@@ -91,8 +95,9 @@ def test_get_group_classes_no_available_data(test_client):
 def test_post_booking_data_service(test_client, test_session):
     trainer = test_session.execute(select(Trainer)).scalars().first()
     service = test_session.execute(select(Service)).scalars().first()
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.service_id == service.id).first()
+    timeslot = (
+        test_session.query(TimeSlot).filter(TimeSlot.service_id == service.id).first()
+    )
 
     assert trainer is not None
     assert service is not None
@@ -100,37 +105,37 @@ def test_post_booking_data_service(test_client, test_session):
 
     booking_date = timeslot.dates.strftime("%Y-%m-%d")
 
-    response = test_client.post("/api/bookings", json={
-        "serviceId": service.id,
-        "trainerId": trainer.id,
-        "timeSlotId": timeslot.id,
-        "date": booking_date
-    })
+    response = test_client.post(
+        "/api/bookings",
+        json={
+            "serviceId": service.id,
+            "trainerId": trainer.id,
+            "timeSlotId": timeslot.id,
+            "date": booking_date,
+        },
+    )
     assert response.status_code == 200
     assert "booking_id" in response.json()
     booking_id = response.json()["booking_id"]
-    new_booking = test_session.query(Booking).filter(
-        Booking.id == booking_id).first()
+    new_booking = test_session.query(Booking).filter(Booking.id == booking_id).first()
 
     assert new_booking is not None
     assert new_booking.service_id == service.id
     assert new_booking.trainer_id == trainer.id
     assert new_booking.timeslot_id == timeslot.id
-    assert new_booking.dates == str(
-        datetime.strptime(booking_date, "%Y-%m-%d").date())
+    assert new_booking.dates == str(datetime.strptime(booking_date, "%Y-%m-%d").date())
 
     test_session.commit()
     test_session.refresh(timeslot)
     assert timeslot.available is False
 
 
-def test_post_booking_data_service_timeslot_unavailable(
-        test_client, test_session
-):
+def test_post_booking_data_service_timeslot_unavailable(test_client, test_session):
     trainer = test_session.execute(select(Trainer)).scalars().first()
     service = test_session.execute(select(Service)).scalars().first()
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.service_id == service.id).first()
+    timeslot = (
+        test_session.query(TimeSlot).filter(TimeSlot.service_id == service.id).first()
+    )
 
     assert trainer is not None
     assert service is not None
@@ -142,12 +147,15 @@ def test_post_booking_data_service_timeslot_unavailable(
 
     booking_date = timeslot.dates.strftime("%Y-%m-%d")
 
-    response = test_client.post("/api/bookings", json={
-        "serviceId": service.id,
-        "trainerId": trainer.id,
-        "timeSlotId": timeslot.id,
-        "date": booking_date
-    })
+    response = test_client.post(
+        "/api/bookings",
+        json={
+            "serviceId": service.id,
+            "trainerId": trainer.id,
+            "timeSlotId": timeslot.id,
+            "date": booking_date,
+        },
+    )
 
     # Проверка, что статус код 400 и сообщение об ошибке соответствует ожиданиям
     assert response.status_code == 400
@@ -156,29 +164,32 @@ def test_post_booking_data_service_timeslot_unavailable(
 
 def test_post_booking_data_group(test_client, test_session):
     group = test_session.execute(select(GroupClass)).scalars().first()
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.group_class_id == group.id).first()
+    timeslot = (
+        test_session.query(TimeSlot).filter(TimeSlot.group_class_id == group.id).first()
+    )
 
     assert group is not None
     assert timeslot is not None
 
     booking_date = timeslot.dates.strftime("%Y-%m-%d")
 
-    response = test_client.post("/api/bookings", json={
-        "classId": group.id,
-        "date": booking_date,
-        "timeSlotId": timeslot.id,
-        "name": "Test Booking",
-        "phone": "1234567890",
-        "email": "test@example.com"
-    })
+    response = test_client.post(
+        "/api/bookings",
+        json={
+            "classId": group.id,
+            "date": booking_date,
+            "timeSlotId": timeslot.id,
+            "name": "Test Booking",
+            "phone": "1234567890",
+            "email": "test@example.com",
+        },
+    )
 
     assert response.status_code == 200
     assert "booking_id" in response.json()
 
     booking_id = response.json()["booking_id"]
-    new_booking = test_session.query(Booking).filter(
-        Booking.id == booking_id).first()
+    new_booking = test_session.query(Booking).filter(Booking.id == booking_id).first()
     spots = timeslot.available_spots
 
     assert new_booking is not None
@@ -204,7 +215,7 @@ def test_post_booking_data_group_timeslot_not_found(test_client, test_session):
         "timeSlotId": 9999,  # Используем несуществующий timeSlotId
         "name": "Test Booking",
         "phone": "1234567890",
-        "email": "test@example.com"
+        "email": "test@example.com",
     }
 
     # Выполняем POST-запрос к эндпоинту
@@ -215,14 +226,12 @@ def test_post_booking_data_group_timeslot_not_found(test_client, test_session):
     assert response.json() == {"detail": "Выбранное время уже занято"}
 
 
-def test_post_booking_data_service_timeslot_already_booked(
-        test_client,
-        test_session
-):
+def test_post_booking_data_service_timeslot_already_booked(test_client, test_session):
     trainer = test_session.execute(select(Trainer)).scalars().first()
     service = test_session.execute(select(Service)).scalars().first()
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.service_id == service.id).first()
+    timeslot = (
+        test_session.query(TimeSlot).filter(TimeSlot.service_id == service.id).first()
+    )
 
     assert trainer is not None
     assert service is not None
@@ -235,12 +244,15 @@ def test_post_booking_data_service_timeslot_already_booked(
 
     booking_date = timeslot.dates.strftime("%Y-%m-%d")
 
-    response = test_client.post("/api/bookings", json={
-        "serviceId": service.id,
-        "trainerId": trainer.id,
-        "timeSlotId": timeslot.id,
-        "date": booking_date
-    })
+    response = test_client.post(
+        "/api/bookings",
+        json={
+            "serviceId": service.id,
+            "trainerId": trainer.id,
+            "timeSlotId": timeslot.id,
+            "date": booking_date,
+        },
+    )
 
     # Проверка, что статус код 400 и сообщение об ошибке соответствует ожиданиям
     assert response.status_code == 400
@@ -250,8 +262,9 @@ def test_post_booking_data_service_timeslot_already_booked(
 def test_get_booking_details(test_client, test_session):
     trainer = test_session.execute(select(Trainer)).scalars().first()
     service = test_session.execute(select(Service)).scalars().first()
-    timeslot = test_session.query(TimeSlot).filter(
-        TimeSlot.service_id == service.id).first()
+    timeslot = (
+        test_session.query(TimeSlot).filter(TimeSlot.service_id == service.id).first()
+    )
 
     assert trainer is not None
     assert service is not None
@@ -259,12 +272,15 @@ def test_get_booking_details(test_client, test_session):
 
     booking_date = timeslot.dates.strftime("%Y-%m-%d")
 
-    test_client.post("/api/bookings", json={
-        "serviceId": service.id,
-        "trainerId": trainer.id,
-        "timeSlotId": timeslot.id,
-        "date": booking_date
-    })
+    test_client.post(
+        "/api/bookings",
+        json={
+            "serviceId": service.id,
+            "trainerId": trainer.id,
+            "timeSlotId": timeslot.id,
+            "date": booking_date,
+        },
+    )
 
     test_session.commit()
     response = test_client.get("/api/booking-details")

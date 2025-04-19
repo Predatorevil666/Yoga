@@ -10,3 +10,4 @@ flake8==7.2.0
 isort==6.0.1
 pytest==8.3.5
 httpx==0.28.1
+Flake8-pyproject==1.2.3

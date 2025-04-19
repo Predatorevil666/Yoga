@@ -1,16 +1,21 @@
-import sys
 import os
+import random
+import sys
+
+from datetime import datetime, time, timedelta
+from typing import Annotated
+
+from fastapi import Depends
+from sqlmodel import Session, select
+from utils.database import db
+from utils.models import (Branch, GroupClass, Service, TimeSlot, Trainer,
+                          TrainerGroup, TrainerService)
 
 # Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", ".."))
+)
 
-from utils.models import Service, Trainer, TimeSlot, Branch, TrainerService, GroupClass, TrainerGroup
-from utils.database import db
-from sqlmodel import Session, select
-from typing import Annotated
-from fastapi import Depends
-from datetime import datetime, timedelta, time
-import random
 
 SessionDep = Annotated[Session, Depends(db.get_session)]
 
@@ -46,7 +51,7 @@ services_data = [
         """,
         "price": 3000,
         "photo": "https://assets.yclients.com/main_service_image/basic/a/a3/a3fa859373f5c5b_20240908015458.png",
-        "type": "training"
+        "type": "training",
     },
     {
         "name": "Здоровая спина",
@@ -60,7 +65,7 @@ services_data = [
         """,
         "price": 3000,
         "photo": "https://assets.yclients.com/main_service_image/basic/e/eb/ebc3d23b4d1c8c6_20240813212720.png",
-        "type": "training"
+        "type": "training",
     },
     {
         "name": "Йога для беременных",
@@ -84,8 +89,8 @@ services_data = [
             Во время индивидуальных занятий, инструктор проводит тематические медитации, что помогает создать связь со своим малышом, снизить тревожность и взрастить в себе чувство доверия
         """,
         "price": 3000,
-        "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",  
-        "type": "training"
+        "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
+        "type": "training",
     },
     {
         "name": "Лечебный массаж",
@@ -98,7 +103,7 @@ services_data = [
         """,
         "price": 2000,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Антицеллюлитный массаж",
@@ -111,7 +116,7 @@ services_data = [
         """,
         "price": 2500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Спортивный массаж",
@@ -124,7 +129,7 @@ services_data = [
         """,
         "price": 3500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Массаж лица",
@@ -137,7 +142,7 @@ services_data = [
         """,
         "price": 2000,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Классический массаж",
@@ -150,7 +155,7 @@ services_data = [
         """,
         "price": 2500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Массаж спины",
@@ -163,7 +168,7 @@ services_data = [
         """,
         "price": 2000,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Баночный массаж",
@@ -176,7 +181,7 @@ services_data = [
         """,
         "price": 2000,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Массаж головы",
@@ -189,7 +194,7 @@ services_data = [
         """,
         "price": 1500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Расслабляющий массаж",
@@ -202,7 +207,7 @@ services_data = [
         """,
         "price": 2500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Массаж ног",
@@ -215,7 +220,7 @@ services_data = [
         """,
         "price": 1500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
+        "type": "massage",
     },
     {
         "name": "Массаж шейно-воротниковой зоны",
@@ -228,8 +233,8 @@ services_data = [
         """,
         "price": 1500,
         "photo": "https://assets.yclients.com/main_service_image/basic/c/cf/cf26b900bf1bb68_20240912172950.png",
-        "type": "massage"
-    }
+        "type": "massage",
+    },
 ]
 
 group_services_data = [
@@ -249,7 +254,7 @@ group_services_data = [
 * исправление осанки
 * медитативный подход в практике дает снятие стресса и гармонизацию психологического состояния, улучшается качество сна
         """,
-        "price": 900
+        "price": 900,
     },
     {
         "name": "Йога-терапия позвоночника",
@@ -263,7 +268,7 @@ group_services_data = [
 * исцеление остеохондроза и других возрастных изменений в позвоночнике в результате восстановления природной регенерации тканей.
 Практика подходит для тех, кто только начинает знакомиться йогой, имеет ограничения подвижности в позвоночнике и другие заболевания опорно-двигательного аппарата.
         """,
-        "price": 900
+        "price": 900,
     },
     {
         "name": "Йога для беременных",
@@ -282,7 +287,7 @@ group_services_data = [
 5. Создание гармоничной связи с ребенком. 
 6. Улучшение кровообращения и общего здоровья.
         """,
-        "price": 900
+        "price": 900,
     },
     {
         "name": "Детская аэро-йога",
@@ -299,7 +304,7 @@ group_services_data = [
 
 ?Занятия позволяют детям расслабиться, избавиться от избытка энергии и чрезмерной напряжённости в теле, балансируют тело.
         """,
-        "price": 700
+        "price": 700,
     },
     {
         "name": "Хатха-йога для детей",
@@ -323,7 +328,7 @@ group_services_data = [
 
 Практика подходит для детей и подростков от 7 до 16 лет.
         """,
-        "price": 700
+        "price": 700,
     },
     {
         "name": "Хатха-йога для начинающих",
@@ -336,7 +341,7 @@ group_services_data = [
 * повысят эластичность мышц
 * восстановят нервную систему, помогая справляться с переживаниями и стрессом.
         """,
-        "price": 900
+        "price": 900,
     },
     {
         "name": "Утренняя хатха для начинающих",
@@ -349,7 +354,7 @@ group_services_data = [
 * повысят эластичность мышц
 * восстановят нервную систему, помогая справляться с переживаниями и стрессом.
         """,
-        "price": 900
+        "price": 900,
     },
     {
         "name": "FLY Йога в гамаках",
@@ -362,7 +367,7 @@ Fly yoga — это не просто йога в гамаке, она совм�
 
 Приятный бонус — тренировки на гамаке помогают справиться с тревожностью и «перезагрузить» головной мозг, улучшить работу вестибулярного аппарата.
         """,
-        "price": 899
+        "price": 899,
     },
     {
         "name": "Медитация с поющими чашами. Открытый урок.",
@@ -388,7 +393,7 @@ Fly yoga — это не просто йога в гамаке, она совм�
 ?стимулировать тело на самоисцеление 
 
 ?✨После практики почувствуете перезагрузку всей вашей системы , улучшение физического и психического здоровья, освободитесь от эмоциональных блоков, услышите свой внутренний голос, уйдете домой с новыми прекрасными мыслями ?
-        """
+        """,
     },
     {
         "name": "Аэро-йога",
@@ -403,35 +408,31 @@ Fly yoga — это не просто йога в гамаке, она совм�
 - снятие мышечных спазмов, напряжения с позвоночника.
 - улучшение работы сердечно-сосудистой и дыхательных систем.
         """,
-        "price": 900
-    }
+        "price": 900,
+    },
 ]
 
 trainers_data = [
     {
         "name": "Мастер-тренер",
         "specialization": "Преподаватель йоги",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
     },
     {
         "name": "Алёна Атаманенко",
         "specialization": "Преподаватель йоги",
-        "photo": "https://example.com/photo2.jpg"
+        "photo": "https://example.com/photo2.jpg",
     },
-    {
-        "name": "Ольга Павленко",
-        "specialization": "Преподаватель йоги",
-        "photo": None
-    },
+    {"name": "Ольга Павленко", "specialization": "Преподаватель йоги", "photo": None},
     {
         "name": "Вероника Быкова",
         "specialization": "Преподаватель йоги, массажист",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
     },
     {
         "name": "Степуренко Валерия",
         "specialization": "Преподаватель йоги",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
     },
     {
         "name": "Анастасия Шевченко",
@@ -452,7 +453,7 @@ trainers_data = [
 На своих занятиях обращаю внимание на правильную технику выполнения асан. Начиная от кончиков пальцев рук и ног, концентрируя всё своё внимание на каждых линиях и изгибах тела. Завершая направлением взгляда, чистотой мыслей и техникой дыхания.
         """,
         "specialization": "Преподаватель йоги",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
     },
     {
         "name": "Елена Грызунова",
@@ -462,7 +463,7 @@ trainers_data = [
 В 2018 году открыла для себя направление йоги в гамаках, с тех пор я влюблена в этот вид йоги. Прошла обучение у Строгоновой Елены в Федерации профессионалов фитнеса Краснодарского края (базовый и продвинутый уровень) сертифицированный инструктор Unnata Aerial Yoga. Преподавание с 2018 года. В 2019 году пройдено обучение по освоению практики в низком гамаке в аэройга. рф. 
         """,
         "specialization": "Преподаватель йоги",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
     },
     {
         "name": "Юлия Андроник",
@@ -478,8 +479,8 @@ https://t.me/zdorovayaspina_julyandronik
 - Сертификат "инструктор по миофасциальной у релизу"                               - Сертификат о прохождении модуля "Диагностика в йтога-терапии точного выравнивания" Москва, Critical Alignment Therapy & Yoga Institute.   - Стажировка в Critical Alignment Therapy & Yoga Institut, Москва, 2024 год.
         """,
         "specialization": "Преподаватель йоги",
-        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png"
-    }
+        "photo": "https://assets.yclients.com/masters/origin/a/ad/ad65931d879a1e5_20240825210707.png",
+    },
 ]
 
 branch_data = [
@@ -495,14 +496,20 @@ branch_data = [
 
 Возраст и уровень подготовки не важен, мы ждём всех, до встречи на ковриках!
         """,
-        "photos": ["https://assets.yclients.com/general/1/1f/1f2cc8ec4a5827f_20240514033840.png", "https://assets.yclients.com/general/f/f7/f7095ee9343ea35_20240517002851.png", "https://assets.yclients.com/general/b/ba/ba57cda5a3abd3b_20240517002933.png", "https://assets.yclients.com/general/5/51/516bd1f88a1a3a1_20240517003010.png"]
-
+        "photos": [
+            "https://assets.yclients.com/general/1/1f/1f2cc8ec4a5827f_20240514033840.png",
+            "https://assets.yclients.com/general/f/f7/f7095ee9343ea35_20240517002851.png",
+            "https://assets.yclients.com/general/b/ba/ba57cda5a3abd3b_20240517002933.png",
+            "https://assets.yclients.com/general/5/51/516bd1f88a1a3a1_20240517003010.png",
+        ],
     }
 ]
 
-time_slots = [time(hour, minute) for hour in range(16, 17) for minute in (0, 30)]
+time_slots = [time(hour, minute) for hour in range(16, 17)
+              for minute in (0, 30)]
 start_date = datetime(2025, 1, 23)
 end_date = datetime(2025, 2, 23)
+
 
 def insert_data():
     with next(db.get_session()) as session:
@@ -530,7 +537,7 @@ def insert_data():
             session.add(group_entry)
 
         session.commit()
-        
+
         services = session.exec(select(Service)).all()
         groups = session.exec(select(GroupClass)).all()
         trainer_service_pairs = session.exec(select(TrainerService)).all()
@@ -538,19 +545,25 @@ def insert_data():
 
         for service in services:
             if service.type.lower() == "massage":
-                trainer_service_entry = TrainerService(trainer_id=1, service_id=service.id)
+                trainer_service_entry = TrainerService(
+                    trainer_id=1, service_id=service.id
+                )
                 session.add(trainer_service_entry)
             else:
                 random_trainer = random.randint(2, 8)
-                trainer_service_entry = TrainerService(trainer_id=random_trainer, service_id=service.id)
+                trainer_service_entry = TrainerService(
+                    trainer_id=random_trainer, service_id=service.id
+                )
                 session.add(trainer_service_entry)
-        
+
         session.commit()
 
         for group in groups:
-                random_trainer = random.randint(2, 8)
-                trainer_group_entry = TrainerGroup(trainer_id=random_trainer, group_class_id=group.id)
-                session.add(trainer_group_entry)
+            random_trainer = random.randint(2, 8)
+            trainer_group_entry = TrainerGroup(
+                trainer_id=random_trainer, group_class_id=group.id
+            )
+            session.add(trainer_group_entry)
 
         session.commit()
 
@@ -561,7 +574,8 @@ def insert_data():
             current_date = start_date
             while current_date <= end_date:
                 for slot_time in time_slots:
-                    full_datetime = datetime.combine(current_date.date(), slot_time)
+                    full_datetime = datetime.combine(
+                        current_date.date(), slot_time)
 
                     time_slot = TimeSlot(
                         trainer_id=trainer_id,
@@ -569,7 +583,7 @@ def insert_data():
                         dates=current_date.date(),
                         times=full_datetime.time(),
                         available=True,
-                        created_at=datetime.utcnow()
+                        created_at=datetime.utcnow(),
                     )
                     session.add(time_slot)
 
@@ -580,11 +594,12 @@ def insert_data():
         for pair in trainer_group_pairs:
             trainer_id = pair.trainer_id
             group_id = pair.group_class_id
-        
+
             current_date = start_date
             while current_date <= end_date:
                 for slot_time in time_slots:
-                    full_datetime = datetime.combine(current_date.date(), slot_time)
+                    full_datetime = datetime.combine(
+                        current_date.date(), slot_time)
 
                     time_slot = TimeSlot(
                         trainer_id=trainer_id,
@@ -593,7 +608,7 @@ def insert_data():
                         times=full_datetime.time(),
                         available=True,
                         available_spots=random.randint(1, 10),
-                        created_at=datetime.utcnow()
+                        created_at=datetime.utcnow(),
                     )
 
                     session.add(time_slot)
@@ -601,6 +616,7 @@ def insert_data():
                 current_date += timedelta(days=1)
 
             session.commit()
+
 
 if __name__ == "__main__":
     insert_data()
