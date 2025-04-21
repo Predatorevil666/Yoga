@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 
-from fastapi.testclient import TestClient
 import pytest
+
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
@@ -9,13 +12,14 @@ from sqlmodel import SQLModel
 from application.backend.main import app
 from utils.models import Branch, GroupClass, Service, TimeSlot, Trainer
 
-
 # URL для тестовой базы данных
 TEST_DATABASE_URL = "postgresql://postgres:Worldof123@localhost/test_db"
 
 # Создаем движок и сессию
 engine = create_engine(TEST_DATABASE_URL)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine
+)
 
 
 # Фикстура для настройки базы данных
@@ -43,10 +47,16 @@ def test_session():
     trainer1 = Trainer(name="Test Trainer 1", specialization="Yoga")
     trainer2 = Trainer(name="Test Trainer 2", specialization="Fitness")
     group_class1 = GroupClass(
-        name="Test Group 1", duration=90, description="Description 1", price=1500
+        name="Test Group 1",
+        duration=90,
+        description="Description 1",
+        price=1500,
     )
     group_class2 = GroupClass(
-        name="Test Group 2", duration=45, description="Description 2", price=750
+        name="Test Group 2",
+        duration=45,
+        description="Description 2",
+        price=750,
     )
 
     session.add_all(

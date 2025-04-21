@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException
 import jwt
+
+from fastapi import HTTPException
 from jwt import DecodeError, ExpiredSignatureError
 from passlib.context import CryptContext
 
@@ -13,7 +14,9 @@ class PasswordManager:
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)
 
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+    def verify_password(
+        self, plain_password: str, hashed_password: str
+    ) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password)
 
 

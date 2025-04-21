@@ -7,7 +7,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from wtforms import StringField
 from wtforms.validators import DataRequired, Email
 
-
 app = Flask(__name__)
 app.secret_key = "supersecret"
 engine = create_engine("postgresql://postgres:Worldof123@postgres:5432/Users")
@@ -27,7 +26,9 @@ class UserAdminView(ModelView):
 
     form_extra_fields = {
         "name": StringField("User  Name", validators=[DataRequired()]),
-        "email": StringField("Email Address", validators=[DataRequired(), Email()]),
+        "email": StringField(
+            "Email Address", validators=[DataRequired(), Email()]
+        ),
         "avatar": StringField("Avatar URL"),
     }
 

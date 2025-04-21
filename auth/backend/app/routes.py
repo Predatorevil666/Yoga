@@ -8,7 +8,6 @@ from models import AuthUser, TelegramOTP
 from sqlmodel import Session, select
 from utilits import token_service
 
-
 SessionDep = Annotated[Session, Depends(db.get_session)]
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter()
@@ -25,12 +24,17 @@ async def protected_route(token: str = Depends(oauth2_scheme)):
 
 @router.post("/api/auth/login")
 async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: SessionDep
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep,
 ):
     try:
         auth_service = AuthService(session)
-        user = auth_service.authenticate_user(form_data.username, form_data.password)
-        access_token = token_service.create_access_token(data={"sub": user.username})
+        user = auth_service.authenticate_user(
+            form_data.username, form_data.password
+        )
+        access_token = token_service.create_access_token(
+            data={"sub": user.username}
+        )
         return {
             "access_token": access_token,
             "token_type": "bearer",
@@ -44,8 +48,12 @@ async def login(
 async def register_email(data: AuthUser, session: SessionDep):
     try:
         auth_service = AuthService(session)
-        user = auth_service.register_user(data.username, data.email, data.password)
-        access_token = token_service.create_access_token(data={"sub": user.email})
+        user = auth_service.register_user(
+            data.username, data.email, data.password
+        )
+        access_token = token_service.create_access_token(
+            data={"sub": user.email}
+        )
         return {
             "access_token": access_token,
             "token_type": "bearer",
@@ -85,7 +93,8 @@ async def verify_otp(data: TelegramOTP, session: SessionDep):
 async def admin(data: TelegramOTP, session: SessionDep):
     try:
         query = select(TelegramOTP).where(
-            TelegramOTP.telegram_id == data.telegram_id, TelegramOTP.is_admin == True
+            TelegramOTP.telegram_id == data.telegram_id,
+            TelegramOTP.is_admin == True,
         )
         result = session.exec(query).one_or_none()
         if not result:

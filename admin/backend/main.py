@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+
+import uvicorn
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import router as rest_router
-import uvicorn
 
 from utils.database import db
 

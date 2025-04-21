@@ -85,7 +85,9 @@ def test_edit_group(test_client, test_session):
         "price": 999,
     }
 
-    response = test_client.put(f"/api/admin/group/edit/{old_group.id}", json=data)
+    response = test_client.put(
+        f"/api/admin/group/edit/{old_group.id}", json=data
+    )
     assert response.status_code == 200
 
     response = test_client.get(f"/api/admin/group/{old_group.id}")

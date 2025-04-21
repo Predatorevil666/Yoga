@@ -37,7 +37,9 @@ def test_add_trainer_without_parametrs(test_client):
 
 def test_add_existing_trainer(test_client):
     existing_trainer = {"name": "Test Trainer 1", "specialization": "Yoga"}
-    response = test_client.post("/api/admin/trainer/add", json=existing_trainer)
+    response = test_client.post(
+        "/api/admin/trainer/add", json=existing_trainer
+    )
     assert response.status_code == 400
     assert response.json() == {"detail": "Тренер уже существует"}
 
@@ -51,7 +53,9 @@ def test_delete_trainer(test_client, test_session):
     assert response.status_code == 200
     # assert response.json()["id"] == new_trainer.id
 
-    response = test_client.delete(f"/api/admin/trainer/delete/{new_trainer.id}")
+    response = test_client.delete(
+        f"/api/admin/trainer/delete/{new_trainer.id}"
+    )
     assert response.status_code == 200
 
     response = test_client.get(f"/api/admin/trainer/{new_trainer.id}")
@@ -81,7 +85,9 @@ def test_edit_trainer(test_client, test_session):
         "photo": "New photo",
     }
 
-    response = test_client.put(f"/api/admin/trainer/edit/{old_trainer.id}", json=data)
+    response = test_client.put(
+        f"/api/admin/trainer/edit/{old_trainer.id}", json=data
+    )
 
     assert response.status_code == 200
 

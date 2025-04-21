@@ -3,9 +3,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
+
 from utils.database import db
-from utils.models import (Booking, Branch, GroupClass, Service, TimeSlot,
-                          Trainer)
+from utils.models import (
+    Booking,
+    Branch,
+    GroupClass,
+    Service,
+    TimeSlot,
+    Trainer,
+)
 
 SessionDep = Annotated[Session, Depends(db.get_session)]
 router = APIRouter()
@@ -29,7 +36,11 @@ async def return_trainers_endpoint(
         .join(Trainer.time_slots)
         .where(
             (TimeSlot.service_id == service_id if service_id else True),
-            (TimeSlot.group_class_id == group_class_id if group_class_id else True),
+            (
+                TimeSlot.group_class_id == group_class_id
+                if group_class_id
+                else True
+            ),
             TimeSlot.dates >= today,
             TimeSlot.available == True,
         )
@@ -70,7 +81,9 @@ async def post_booking_data_endpoint(session: SessionDep, booking_data: dict):
         ).first()
 
         if not timeslot:
-            raise HTTPException(status_code=400, detail="Выбранное время уже занято")
+            raise HTTPException(
+                status_code=400, detail="Выбранное время уже занято"
+            )
 
         timeslot.available = False
 
@@ -89,7 +102,9 @@ async def post_booking_data_endpoint(session: SessionDep, booking_data: dict):
         ).first()
 
         if not timeslot:
-            raise HTTPException(status_code=400, detail="Выбранное время уже занято")
+            raise HTTPException(
+                status_code=400, detail="Выбранное время уже занято"
+            )
 
         timeslot.available_spots -= 1
         if timeslot.available_spots == 0:
@@ -107,7 +122,10 @@ async def post_booking_data_endpoint(session: SessionDep, booking_data: dict):
     session.add(new_booking)
     session.commit()
 
-    return {"message": "Бронирование успешно создано", "booking_id": new_booking.id}
+    return {
+        "message": "Бронирование успешно создано",
+        "booking_id": new_booking.id,
+    }
 
 
 @router.get("/api/branch-info")

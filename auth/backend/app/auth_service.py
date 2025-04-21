@@ -1,12 +1,12 @@
+import logging
+
 from datetime import datetime
 
 from bot.main import otp_service
 from fastapi import HTTPException
-import logging
 from models import AuthUser, TelegramOTP
 from sqlmodel import Session, select
 from utilits import password_manager, token_service
-
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,9 @@ class AuthService:
         user = self.session.exec(
             select(AuthUser).where(AuthUser.username == username)
         ).first()
-        if not user or not password_manager.verify_password(password, user.password):
+        if not user or not password_manager.verify_password(
+            password, user.password
+        ):
             raise HTTPException(
                 status_code=401, detail="Incorrect username or password"
             )
@@ -28,7 +30,9 @@ class AuthService:
         self.session.commit()
         return user
 
-    def register_user(self, username: str, email: str, password: str) -> AuthUser:
+    def register_user(
+        self, username: str, email: str, password: str
+    ) -> AuthUser:
         try:
             existing_user = self.session.exec(
                 select(AuthUser).where(AuthUser.email == email)
@@ -64,7 +68,9 @@ class AuthService:
         if user_otp:
             user_otp.otp = otp
         else:
-            user_otp = TelegramOTP(username=username, telegram_id=telegram_id, otp=otp)
+            user_otp = TelegramOTP(
+                username=username, telegram_id=telegram_id, otp=otp
+            )
             self.session.add(user_otp)
 
         self.session.commit()
@@ -79,4 +85,6 @@ class AuthService:
 
         user_otp.otp = None
         self.session.commit()
-        return token_service.create_access_token(data={"sub": user_otp.telegram_id})
+        return token_service.create_access_token(
+            data={"sub": user_otp.telegram_id}
+        )

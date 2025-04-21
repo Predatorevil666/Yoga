@@ -1,6 +1,6 @@
-from typing import Generator
+from collections.abc import Generator
 
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 from utils.config import settings
 

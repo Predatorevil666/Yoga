@@ -6,12 +6,13 @@ Create Date: 2024-11-13 18:40:26.879335
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 
-from alembic import op
 import sqlalchemy as sa
 import sqlmodel
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "cf26bafb4eb9"
@@ -25,25 +26,38 @@ def upgrade() -> None:
     op.create_table(
         "authuser",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("username", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "username", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("password", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "password", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("last_login", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_authuser_email"), "authuser", ["email"], unique=True)
-    op.create_index(op.f("ix_authuser_username"), "authuser", ["username"], unique=True)
+    op.create_index(
+        op.f("ix_authuser_email"), "authuser", ["email"], unique=True
+    )
+    op.create_index(
+        op.f("ix_authuser_username"), "authuser", ["username"], unique=True
+    )
     op.create_table(
         "telegramotp",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("username", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "username", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
         sa.Column("telegram_id", sa.Integer(), nullable=False),
         sa.Column("otp", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_telegramotp_username"), "telegramotp", ["username"], unique=True
+        op.f("ix_telegramotp_username"),
+        "telegramotp",
+        ["username"],
+        unique=True,
     )
     # ### end Alembic commands ###
 

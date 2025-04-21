@@ -7,13 +7,21 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session, select
+
 from utils.database import db
-from utils.models import (Branch, GroupClass, Service, TimeSlot, Trainer,
-                          TrainerGroup, TrainerService)
+from utils.models import (
+    Branch,
+    GroupClass,
+    Service,
+    TimeSlot,
+    Trainer,
+    TrainerGroup,
+    TrainerService,
+)
 
 # Add the parent directory to sys.path
-sys.path.append(os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 )
 
 
@@ -70,7 +78,7 @@ services_data = [
     {
         "name": "Йога для беременных",
         "duration": "1",
-        "description": """
+        "description": r"""
             Татьяна Мазкина - преподаватель по женской йоге и йоге для беременных. 
             Опыт преподавания 3 года, опыт личной практики 7 лет
             Обучение: Trini yoga school, Yogamed.
@@ -423,7 +431,11 @@ trainers_data = [
         "specialization": "Преподаватель йоги",
         "photo": "https://example.com/photo2.jpg",
     },
-    {"name": "Ольга Павленко", "specialization": "Преподаватель йоги", "photo": None},
+    {
+        "name": "Ольга Павленко",
+        "specialization": "Преподаватель йоги",
+        "photo": None,
+    },
     {
         "name": "Вероника Быкова",
         "specialization": "Преподаватель йоги, массажист",
@@ -505,15 +517,15 @@ branch_data = [
     }
 ]
 
-time_slots = [time(hour, minute) for hour in range(16, 17)
-              for minute in (0, 30)]
+time_slots = [
+    time(hour, minute) for hour in range(16, 17) for minute in (0, 30)
+]
 start_date = datetime(2025, 1, 23)
 end_date = datetime(2025, 2, 23)
 
 
 def insert_data():
     with next(db.get_session()) as session:
-
         for trainer in trainers_data:
             trainer_entry = Trainer(**trainer)
             session.add(trainer_entry)
@@ -575,7 +587,8 @@ def insert_data():
             while current_date <= end_date:
                 for slot_time in time_slots:
                     full_datetime = datetime.combine(
-                        current_date.date(), slot_time)
+                        current_date.date(), slot_time
+                    )
 
                     time_slot = TimeSlot(
                         trainer_id=trainer_id,
@@ -599,7 +612,8 @@ def insert_data():
             while current_date <= end_date:
                 for slot_time in time_slots:
                     full_datetime = datetime.combine(
-                        current_date.date(), slot_time)
+                        current_date.date(), slot_time
+                    )
 
                     time_slot = TimeSlot(
                         trainer_id=trainer_id,

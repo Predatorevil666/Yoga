@@ -44,7 +44,9 @@ def test_add_existing_service(test_client):
         "price": 1000,
         "type": "individual",
     }
-    response = test_client.post("/api/admin/service/add", json=existing_service)
+    response = test_client.post(
+        "/api/admin/service/add", json=existing_service
+    )
     assert response.status_code == 400
     assert response.json() == {"detail": "Сервис уже существует"}
 
@@ -57,7 +59,9 @@ def test_delete_service(test_client, test_session):
     response = test_client.get(f"/api/admin/service/{new_service.id}")
     assert response.status_code == 200
 
-    response = test_client.delete(f"/api/admin/service/delete/{new_service.id}")
+    response = test_client.delete(
+        f"/api/admin/service/delete/{new_service.id}"
+    )
     assert response.status_code == 200
 
     response = test_client.get(f"/api/admin/service/{new_service.id}")
@@ -89,7 +93,9 @@ def test_edit_service(test_client, test_session):
         "type": "group",
     }
 
-    response = test_client.put(f"/api/admin/service/edit/{old_service.id}", json=data)
+    response = test_client.put(
+        f"/api/admin/service/edit/{old_service.id}", json=data
+    )
 
     assert response.status_code == 200
 

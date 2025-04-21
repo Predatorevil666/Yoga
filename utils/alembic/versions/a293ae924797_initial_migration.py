@@ -6,12 +6,14 @@ Create Date: 2024-12-30 23:51:37.352731
 
 """
 
-from typing import Sequence, Union
 
-from alembic import op
+from collections.abc import Sequence
+from typing import Union
+
 import sqlalchemy as sa
 import sqlmodel
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "a293ae924797"
@@ -30,9 +32,15 @@ def upgrade() -> None:
         sa.Column("trainer_id", sa.Integer(), nullable=True),
         sa.Column("timeslot_id", sa.Integer(), nullable=False),
         sa.Column("dates", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("user_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("user_email", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("user_phone", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column(
+            "user_name", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
+        sa.Column(
+            "user_email", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
+        sa.Column(
+            "user_phone", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -40,10 +48,16 @@ def upgrade() -> None:
         "branch",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("address", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "address", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
         sa.Column("phone", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("workingHours", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "workingHours", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
+        sa.Column(
+            "description", sqlmodel.sql.sqltypes.AutoString(), nullable=False
+        ),
         sa.Column("photos", sa.JSON(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -52,37 +66,54 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("duration", sa.Float(), nullable=True),
-        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column(
+            "description", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
         sa.Column("price", sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_groupclass_price"), "groupclass", ["price"], unique=False)
+    op.create_index(
+        op.f("ix_groupclass_price"), "groupclass", ["price"], unique=False
+    )
     op.create_table(
         "service",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("duration", sa.Float(), nullable=True),
-        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column(
+            "description", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
         sa.Column("price", sa.Integer(), nullable=True),
         sa.Column("photo", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.Column("type", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_service_name"), "service", ["name"], unique=False)
-    op.create_index(op.f("ix_service_price"), "service", ["price"], unique=False)
+    op.create_index(
+        op.f("ix_service_price"), "service", ["price"], unique=False
+    )
     op.create_index(op.f("ix_service_type"), "service", ["type"], unique=False)
     op.create_table(
         "trainer",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("specialization", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column(
+            "description", sqlmodel.sql.sqltypes.AutoString(), nullable=True
+        ),
+        sa.Column(
+            "specialization",
+            sqlmodel.sql.sqltypes.AutoString(),
+            nullable=False,
+        ),
         sa.Column("photo", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_trainer_name"), "trainer", ["name"], unique=False)
     op.create_index(
-        op.f("ix_trainer_specialization"), "trainer", ["specialization"], unique=False
+        op.f("ix_trainer_specialization"),
+        "trainer",
+        ["specialization"],
+        unique=False,
     )
     op.create_table(
         "timeslot",

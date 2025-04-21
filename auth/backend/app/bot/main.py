@@ -1,10 +1,10 @@
+import asyncio
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-import asyncio
 from bot.config import settings
 from bot.handlers import register_handlers
 from bot.services.otp_service import OTPService
-
 
 bot = Bot(token=settings.BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())

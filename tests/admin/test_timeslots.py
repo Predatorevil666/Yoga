@@ -7,7 +7,9 @@ from utils.models import Service, TimeSlot, Trainer
 
 def test_get_timeslot(test_client, test_session):
     trainer = (
-        test_session.query(Trainer).filter(Trainer.name == "Test Trainer 1").first()
+        test_session.query(Trainer)
+        .filter(Trainer.name == "Test Trainer 1")
+        .first()
     )
     tomorrow = datetime.now() + timedelta(days=1)
 
@@ -30,7 +32,9 @@ def test_get_timeslot(test_client, test_session):
 
 
 def test_return_timeslots_endpoint_no_data(test_client):
-    response = test_client.get("/api/admin/times?trainer_id=999&date=2023-01-01")
+    response = test_client.get(
+        "/api/admin/times?trainer_id=999&date=2023-01-01"
+    )
     assert response.status_code == 200
 
     data = response.json()
@@ -47,10 +51,14 @@ def test_get_time_not_found(test_client):
 
 def test_add_time_slot_success(test_client, test_session):
     trainer = (
-        test_session.query(Trainer).filter(Trainer.name == "Test Trainer 1").first()
+        test_session.query(Trainer)
+        .filter(Trainer.name == "Test Trainer 1")
+        .first()
     )
     service = (
-        test_session.query(Service).filter(Service.name == "Test Service 1").first()
+        test_session.query(Service)
+        .filter(Service.name == "Test Service 1")
+        .first()
     )
 
     time_data = {
@@ -87,12 +95,14 @@ def test_add_time_slot_trainer_not_found(test_client):
 
     response = test_client.post("/api/admin/time/add", json=time_data)
 
-    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.status_code == 400, (
+        f"Expected 400, got {response.status_code}"
+    )
     response_data = response.json()
     expected_detail = "Тренер 'Nonexistent Trainer' не найден"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )
 
 
 def test_add_time_slot_service_not_found(test_client):
@@ -108,7 +118,10 @@ def test_add_time_slot_service_not_found(test_client):
     response = test_client.post("/api/admin/time/add", json=time_data)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == "Услуга 'Несуществующая Услуга' не найдена"
+    assert (
+        response.json()["detail"]
+        == "Услуга 'Несуществующая Услуга' не найдена"
+    )
 
 
 def test_add_time_slot_group_class_not_found(test_client):
@@ -136,7 +149,9 @@ def test_delete_time_slot(test_client, test_session):
 
     response = test_client.delete(f"/api/admin/time/delete/{time_id}")
 
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    assert response.status_code == 200, (
+        f"Expected 200, got {response.status_code}"
+    )
 
     deleted_timeslot = (
         test_session.query(TimeSlot).filter(TimeSlot.id == time_id).first()
@@ -148,13 +163,15 @@ def test_delete_time_slot_not_found(test_client):
     time_id = 999
     response = test_client.delete(f"/api/admin/time/delete/{time_id}")
 
-    assert response.status_code == 404, f"Expected 404, got {response.status_code}"
+    assert response.status_code == 404, (
+        f"Expected 404, got {response.status_code}"
+    )
 
     response_data = response.json()
     expected_detail = "Временной слот не найден"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )
 
 
 def test_edit_time_success(test_client):
@@ -206,13 +223,15 @@ def test_edit_nonexistent_time_slot(test_client):
         "/api/admin/time/edit/9999", json=time_data
     )  # ID 9999 не существует
 
-    assert response.status_code == 404, f"Expected 404, got {response.status_code}"
+    assert response.status_code == 404, (
+        f"Expected 404, got {response.status_code}"
+    )
 
     response_data = response.json()
     expected_detail = "Временной слот не найден"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )
 
 
 def test_edit_with_nonexistent_trainer(test_client, test_session):
@@ -228,15 +247,19 @@ def test_edit_with_nonexistent_trainer(test_client, test_session):
         "available_spots": 5,
     }
 
-    response = test_client.put(f"/api/admin/time/edit/{time_id}", json=time_data)
+    response = test_client.put(
+        f"/api/admin/time/edit/{time_id}", json=time_data
+    )
 
-    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.status_code == 400, (
+        f"Expected 400, got {response.status_code}"
+    )
 
     response_data = response.json()
     expected_detail = "Тренер 'Nonexistent Trainer' не найден"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )
 
 
 def test_edit_with_nonexistent_service(test_client, test_session):
@@ -252,15 +275,19 @@ def test_edit_with_nonexistent_service(test_client, test_session):
         "available_spots": 5,
     }
 
-    response = test_client.put(f"/api/admin/time/edit/{time_id}", json=time_data)
+    response = test_client.put(
+        f"/api/admin/time/edit/{time_id}", json=time_data
+    )
 
-    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.status_code == 400, (
+        f"Expected 400, got {response.status_code}"
+    )
 
     response_data = response.json()
     expected_detail = "Услуга 'Nonexistent Service' не найдена"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )
 
 
 def test_edit_with_nonexistent_group_class(test_client, test_session):
@@ -277,12 +304,16 @@ def test_edit_with_nonexistent_group_class(test_client, test_session):
         "available_spots": 5,
     }
 
-    response = test_client.put(f"/api/admin/time/edit/{time_id}", json=time_data)
+    response = test_client.put(
+        f"/api/admin/time/edit/{time_id}", json=time_data
+    )
 
-    assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+    assert response.status_code == 400, (
+        f"Expected 400, got {response.status_code}"
+    )
 
     response_data = response.json()
     expected_detail = "Групповое занятие 'Nonexistent Group Class' не найдено"
-    assert (
-        response_data["detail"] == expected_detail
-    ), f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    assert response_data["detail"] == expected_detail, (
+        f"Expected '{expected_detail}', got '{response_data['detail']}'"
+    )

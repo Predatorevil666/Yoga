@@ -1,7 +1,7 @@
-from typing import Generator
+from collections.abc import Generator
 
 from config import settings
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 
 class Database:
@@ -16,4 +16,6 @@ class Database:
             yield session
 
 
-db = Database(database_url=settings.AUTH_BACKEND_DB_URL, echo=settings.ECHO_SQL)
+db = Database(
+    database_url=settings.AUTH_BACKEND_DB_URL, echo=settings.ECHO_SQL
+)

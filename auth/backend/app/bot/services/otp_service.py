@@ -1,8 +1,7 @@
+import logging
 import random
 
 from aiogram import Bot
-import logging
-
 
 logger = logging.getLogger(__name__)
 

@@ -4,26 +4,31 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+
     DATABASE_URL: str
-    ECHO_SQL: bool = True
     TEST_DATABASE_URL: str
-    POSTGRES_DB: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    NGINX_PORT: str
-    AUTH_BACKEND_PORT: str
-    BACKEND_PORT: str
-    FRONTEND_PORT: str
-    AUTH_FRONTEND_PORT: str
-    ADMIN_BACKEND_PORT: str
-    ADMIN_FRONTEND_PORT: str
-    POSTGRES_PORT: str
     AUTH_BACKEND_DB_URL: str
     DB_URL: str
-    PYTHONPATH: str
+    POSTGRES_PASSWORD: str
+
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "yoga_db")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
+    NGINX_PORT: str = os.getenv("NGINX_PORT", "80")
+    AUTH_BACKEND_PORT: str = os.getenv("AUTH_BACKEND_PORT", "8005")
+    BACKEND_PORT: str = os.getenv("BACKEND_PORT", "8002")
+    FRONTEND_PORT: str = os.getenv("FRONTEND_PORT", "3001")
+    AUTH_FRONTEND_PORT: str = os.getenv("AUTH_FRONTEND_PORT", "3002")
+    ADMIN_BACKEND_PORT: str = os.getenv("ADMIN_BACKEND_PORT", "5001")
+    ADMIN_FRONTEND_PORT: str = os.getenv("ADMIN_FRONTEND_PORT", "3003")
+    PYTHONPATH: str = os.getenv("PYTHONPATH", "/home/runner/work/Yoga/Yoga")
+    ECHO_SQL: bool = os.getenv("ECHO_SQL", "True").lower() == "true"
 
     class Config:
-        env_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+        env_file = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), 
+            ".env"
+        )
 
 
 settings = Settings()

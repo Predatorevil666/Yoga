@@ -2,6 +2,7 @@ from datetime import date, datetime, time
 from typing import List, Optional
 
 import sqlalchemy as sa
+
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -37,8 +38,8 @@ class Service(SQLModel, table=True):
     photo: str | None = Field(default=None)
     type: str = Field(index=True)
 
-    time_slots: list["TimeSlot"] = Relationship(back_populates="service")
-    trainers: list["Trainer"] = Relationship(
+    time_slots: list[TimeSlot] = Relationship(back_populates="service")
+    trainers: list[Trainer] = Relationship(
         back_populates="services", link_model=TrainerService
     )
 
@@ -50,11 +51,11 @@ class Trainer(SQLModel, table=True):
     specialization: str = Field(index=True)
     photo: str | None = Field(default=None)
 
-    time_slots: list["TimeSlot"] = Relationship(back_populates="trainer")
-    services: list["Service"] = Relationship(
+    time_slots: list[TimeSlot] = Relationship(back_populates="trainer")
+    services: list[Service] = Relationship(
         back_populates="trainers", link_model=TrainerService
     )
-    groups: list["GroupClass"] = Relationship(
+    groups: list[GroupClass] = Relationship(
         back_populates="trainers", link_model=TrainerGroup
     )
 
@@ -63,16 +64,20 @@ class TimeSlot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     trainer_id: int = Field(foreign_key="trainer.id", nullable=False)
     service_id: Optional[int] = Field(default=None, foreign_key="service.id")
-    group_class_id: Optional[int] = Field(default=None, foreign_key="groupclass.id")
+    group_class_id: Optional[int] = Field(
+        default=None, foreign_key="groupclass.id"
+    )
     dates: date = Field(nullable=False)
     times: time = Field(nullable=False)
     available: bool = Field(default=True)
     available_spots: Optional[int] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    trainer: Optional["Trainer"] = Relationship(back_populates="time_slots")
-    service: Optional["Service"] = Relationship(back_populates="time_slots")
-    group_class: Optional["GroupClass"] = Relationship(back_populates="time_slots")
+    trainer: Optional[Trainer] = Relationship(back_populates="time_slots")
+    service: Optional[Service] = Relationship(back_populates="time_slots")
+    group_class: Optional[GroupClass] = Relationship(
+        back_populates="time_slots"
+    )
 
 
 class Branch(SQLModel, table=True):
@@ -92,7 +97,7 @@ class GroupClass(SQLModel, table=True):
     description: str | None = Field(default=None)
     price: int | None = Field(default=None, index=True)
 
-    trainers: list["Trainer"] = Relationship(
+    trainers: list[Trainer] = Relationship(
         back_populates="groups", link_model=TrainerGroup
     )
-    time_slots: list["TimeSlot"] = Relationship(back_populates="group_class")
+    time_slots: list[TimeSlot] = Relationship(back_populates="group_class")

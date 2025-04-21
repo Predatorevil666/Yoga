@@ -1,6 +1,8 @@
 import asyncio
-from bot.main import start_bot
+
 from contextlib import asynccontextmanager
+
+from bot.main import start_bot
 from database import db
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
