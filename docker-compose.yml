@@ -1,25 +1,16 @@
+volumes:
+  postgres_data:
+
 networks:
-  dev:
+  default:
+    driver: bridge
+    name: dev
+
 
 services:
-  nginx:
-    build:
-      context: ./nginx
-    ports:
-      - "${NGINX_PORT}:80"
-    volumes:
-      - './nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf'
-    depends_on:
-      - auth_backend
-      - backend
-      - frontend
-    env_file:
-      - .env
-    networks:
-      - dev
-
   postgres:
     image: postgres:latest
+    container_name: postgres_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -30,12 +21,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
-    networks:
-      - dev
 
   auth_backend:
     build:
       context: ./auth/backend
+    container_name: auth_backend
     ports:
       - "${AUTH_BACKEND_PORT}:8000"
     volumes:
@@ -44,74 +34,84 @@ services:
       - DATABASE_URL=${AUTH_BACKEND_DB_URL}
     env_file:
       - .env
-    networks:
-      - dev
+    depends_on:
+       - postgres
 
   auth_frontend:
     build: 
       context: ./auth/frontend
+    container_name: auth_frontend
     ports:
       - "${AUTH_FRONTEND_PORT}:3000"
     env_file:
       - .env
-    networks:
-      - dev
 
-  backend:
+  application_backend:
     build: 
       context: ./application/backend
+    container_name: application_backend
     ports:
       - "${BACKEND_PORT}:8000"
-    depends_on:
-       - postgres
     environment:
       DATABASE_URL: ${DB_URL}
       PYTHONPATH: ${PYTHONPATH}
     env_file:
       - .env
-    networks:
-      - dev
     volumes:
       - ./application/backend:/app
       - ./utils:/app/utils
+      - ./tests:/app/tests
+    depends_on:
+       - postgres
 
-  frontend:
+  application_frontend:
     build: 
       context: ./application/frontend
+    container_name: application_frontend
     ports:
       - "${FRONTEND_PORT}:3000"
     env_file:
       - .env
-    networks:
-      - dev
 
   admin_backend:
     build: 
       context: ./admin/backend
+    container_name: admin_backend
     ports:
       - "${ADMIN_BACKEND_PORT}:5000"
-    depends_on:
-       - postgres
     environment:
       DATABASE_URL: ${DB_URL}
       PYTHONPATH: ${PYTHONPATH}
     env_file:
       - .env
-    networks:
-      - dev
     volumes:
       - ./admin/backend:/app
       - ./utils:/app/utils
+      - ./tests:/app/tests
+    depends_on:
+       - postgres
 
   admin_frontend:
     build: 
       context: ./admin/frontend
+    container_name: admin_frontend
     ports:
       - "${ADMIN_FRONTEND_PORT}:3000"
     env_file:
       - .env
-    networks:
-      - dev
 
-volumes:
-  postgres_data:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - './nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf'
+    depends_on:
+      - auth_backend
+      - application_backend
+      - admin_backend
+    env_file:
+      - .env
+
