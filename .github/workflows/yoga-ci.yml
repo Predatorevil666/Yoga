@@ -3,8 +3,7 @@ name: yoga-ci
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+ 
 
 jobs:
   backend_tests:
