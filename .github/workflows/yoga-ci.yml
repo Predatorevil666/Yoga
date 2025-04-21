@@ -63,7 +63,7 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.service }}-${{ hashFiles('${{ matrix.service }}/requirements.txt')}}
-          restore-key: |
+          restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.service }}-
 
       - name: Set up Python
@@ -108,10 +108,14 @@ jobs:
         with:
           name: ${{ matrix.service }}-artifacts
           path: |
-            flake8.log
-            isort.log
-            black.log
-            mypy.log
+            ${{ matrix.service }}/backend/flake8.log
+            ${{ matrix.service }}/backend/isort.log
+            ${{ matrix.service }}/backend/black.log
+            ${{ matrix.service }}/backend/mypy.log
+            ${{ matrix.service }}/backend/flake8.error.log
+            ${{ matrix.service }}/backend/isort.error.log
+            ${{ matrix.service }}/backend/black.error.log
+            ${{ matrix.service }}/backend/mypy.error.log
 
   # frontend_test:
   #   runs-on: ubuntu-latest
