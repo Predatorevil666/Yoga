@@ -4,7 +4,6 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-
     DATABASE_URL: str
     TEST_DATABASE_URL: str
     AUTH_BACKEND_DB_URL: str
@@ -26,8 +25,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), 
-            ".env"
+            os.path.dirname(os.path.dirname(__file__)), ".env"
         )
 
 

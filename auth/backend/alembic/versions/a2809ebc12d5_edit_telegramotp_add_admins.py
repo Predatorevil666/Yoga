@@ -6,7 +6,6 @@ Create Date: 2025-01-11 12:30:28.724778
 
 """
 
-
 from collections.abc import Sequence
 from typing import Union
 

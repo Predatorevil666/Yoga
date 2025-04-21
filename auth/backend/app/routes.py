@@ -94,7 +94,7 @@ async def admin(data: TelegramOTP, session: SessionDep):
     try:
         query = select(TelegramOTP).where(
             TelegramOTP.telegram_id == data.telegram_id,
-            TelegramOTP.is_admin == True,
+            TelegramOTP.is_admin,
         )
         result = session.exec(query).one_or_none()
         if not result:

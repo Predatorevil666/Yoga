@@ -42,7 +42,7 @@ async def return_trainers_endpoint(
                 else True
             ),
             TimeSlot.dates >= today,
-            TimeSlot.available == True,
+            TimeSlot.available is True,
         )
         .distinct()
     )
@@ -62,7 +62,7 @@ async def return_timeslots_endpoint(
             TimeSlot.trainer_id == trainer_id,
             TimeSlot.dates == date,
             TimeSlot.service_id == service_id,
-            TimeSlot.available == True,
+            TimeSlot.available is True,
         )
     ).all()
     return timeslots
@@ -76,7 +76,7 @@ async def post_booking_data_endpoint(session: SessionDep, booking_data: dict):
                 TimeSlot.id == booking_data["timeSlotId"],
                 TimeSlot.dates == booking_data["date"],
                 TimeSlot.service_id == booking_data["serviceId"],
-                TimeSlot.available == True,
+                TimeSlot.available is True,
             )
         ).first()
 
@@ -172,7 +172,7 @@ async def get_group_classes_endpoint(
         .join(Trainer, Trainer.id == TimeSlot.trainer_id)
         .where(
             TimeSlot.dates == date,
-            TimeSlot.available == True,
+            TimeSlot.available is True,
             TimeSlot.available_spots > 0,
         )
         .order_by(TimeSlot.dates, TimeSlot.times)

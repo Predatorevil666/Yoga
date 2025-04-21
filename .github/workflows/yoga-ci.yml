@@ -74,24 +74,20 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8==7.2.0 isort==6.0.1 black mypy
+          pip install ruff mypy
           pip install -r ${{ matrix.service }}/backend/requirements.txt
 
-      - name: Copy isort config
+      - name: Copy ruff config
         run: |
           cp ./pyproject.toml ./${{ matrix.service }}/backend/pyproject.toml
 
-      - name: Run isort check
+      - name: Run ruff check
         run: |
-          cd ${{ matrix.service }}/backend && isort . 1> ../isort.log 2> ../isort.error.log || true
-          
-      - name: Test with flake8
-        run: |
-          cd ${{ matrix.service }}/backend && flake8 . 1> ./flake8.log 2> ./flake8.error.log || true
+          cd ${{ matrix.service }}/backend && ruff check . 1> ./ruff.log 2> ./ruff.error.log || true
 
-      - name: Format with black
+      - name: Run ruff format check
         run: |
-          cd ${{ matrix.service }}/backend && black . 1> ./black.log 2> ./black.error.log || true
+          cd ${{ matrix.service }}/backend && ruff format --check . 1> ./ruff.format.log 2> ./ruff.format.error.log || true
 
       - name: Type check with mypy
         run: |
@@ -108,13 +104,11 @@ jobs:
         with:
           name: ${{ matrix.service }}-artifacts
           path: |
-            ${{ matrix.service }}/backend/flake8.log
-            ${{ matrix.service }}/backend/isort.log
-            ${{ matrix.service }}/backend/black.log
+            ${{ matrix.service }}/backend/ruff.log
+            ${{ matrix.service }}/backend/ruff.error.log
+            ${{ matrix.service }}/backend/ruff.format.log
+            ${{ matrix.service }}/backend/ruff.format.error.log
             ${{ matrix.service }}/backend/mypy.log
-            ${{ matrix.service }}/backend/flake8.error.log
-            ${{ matrix.service }}/backend/isort.error.log
-            ${{ matrix.service }}/backend/black.error.log
             ${{ matrix.service }}/backend/mypy.error.log
 
   # frontend_test:

@@ -425,7 +425,8 @@ async def edit_time_endpoint(
             if not group_class:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Групповое занятие '{time_data.group_name}' не найдено",
+                    detail=f"Групповое занятие '{time_data.group_name}'"
+                    f"не найдено",
                 )
 
         time.trainer_id = trainer.id

@@ -173,7 +173,8 @@ def test_post_booking_data_service_timeslot_unavailable(
         },
     )
 
-    # Проверка, что статус код 400 и сообщение об ошибке соответствует ожиданиям
+    # Проверка, что статус код 400 и сообщение
+    # об ошибке соответствует ожиданиям
     assert response.status_code == 400
     assert response.json() == {"detail": "Выбранное время уже занято"}
 
@@ -241,7 +242,8 @@ def test_post_booking_data_group_timeslot_not_found(test_client, test_session):
     # Выполняем POST-запрос к эндпоинту
     response = test_client.post("/api/bookings", json=booking_data)
 
-    # Проверка, что статус код 400 и сообщение об ошибке соответствует ожиданиям
+    # Проверка, что статус код 400 и сообщение
+    # об ошибке соответствует ожиданиям
     assert response.status_code == 400
     assert response.json() == {"detail": "Выбранное время уже занято"}
 
@@ -278,7 +280,8 @@ def test_post_booking_data_service_timeslot_already_booked(
         },
     )
 
-    # Проверка, что статус код 400 и сообщение об ошибке соответствует ожиданиям
+    # Проверка, что статус код 400
+    # и сообщение об ошибке соответствует ожиданиям
     assert response.status_code == 400
     assert response.json() == {"detail": "Выбранное время уже занято"}
 
@@ -333,6 +336,7 @@ def test_get_success_data_no_booking(test_client, test_session):
     # Выполняем GET-запрос к эндпоинту
     response = test_client.get("/api/booking-details")
 
-    # Проверка, что статус код 200 и сообщение об ошибке соответствует ожиданиям
+    # Проверка, что статус код 200
+    # и сообщение об ошибке соответствует ожиданиям
     assert response.status_code == 200
     assert response.json() == {"error": "No booking found"}

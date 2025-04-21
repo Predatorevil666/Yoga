@@ -1,7 +1,9 @@
 import os
+
 from datetime import datetime, timedelta
 
 import pytest
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,7 +13,9 @@ from admin.backend.main import app
 from utils.models import Branch, GroupClass, Service, TimeSlot, Trainer
 
 # URL для тестовой базы данных
-TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql://postgres:Worldof123@localhost/test_db")
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL", "postgresql://postgres:Worldof123@localhost/test_db"
+)
 
 # Создаем движок и сессию
 engine = create_engine(TEST_DATABASE_URL)

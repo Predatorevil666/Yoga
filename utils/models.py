@@ -1,5 +1,5 @@
 from datetime import date, datetime, time
-from typing import List, Optional
+from typing import Optional
 
 import sqlalchemy as sa
 
@@ -87,7 +87,7 @@ class Branch(SQLModel, table=True):
     phone: str = Field(nullable=False)
     workingHours: str = Field(nullable=False)
     description: str = Field(nullable=False)
-    photos: List[str] = Field(default=[], sa_column=sa.Column(sa.JSON))
+    photos: list[str] = Field(default=[], sa_column=sa.Column(sa.JSON))
 
 
 class GroupClass(SQLModel, table=True):
