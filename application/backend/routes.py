@@ -98,6 +98,10 @@ async def post_booking_data_endpoint(session: SessionDep, booking_data: dict):
         timeslot = session.exec(
             select(TimeSlot).where(
                 TimeSlot.id == booking_data["timeSlotId"],
+                TimeSlot.dates == booking_data["date"],
+                TimeSlot.group_class_id == booking_data["classId"],
+                TimeSlot.available is True,
+                TimeSlot.available_spots > 0,
             )
         ).first()
 
