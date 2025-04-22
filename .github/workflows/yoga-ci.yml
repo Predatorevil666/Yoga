@@ -149,6 +149,94 @@ jobs:
             ${{ matrix.service }}/frontend/lint.log
             ${{ matrix.service }}/frontend/lint.error.log
 
+  build_backends_and_push_to_ghcr:
+    name: Build and push backend Docker images
+    runs-on: ubuntu-latest
+    needs: backend_tests
+    strategy:
+      matrix:
+        service: ['admin', 'application', 'auth']
+      fail-fast: false
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:v0.20.2
+            network: host
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-backend-${{ matrix.service }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-backend-${{ matrix.service }}-
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Push to GHCR registry
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.service }}/backend
+          file: ${{ matrix.service }}/backend/Dockerfile
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          tags: ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-backend:latest
+
+  build_frontends_and_push_to_ghcr:
+    name: Build and push frontend Docker images
+    runs-on: ubuntu-latest
+    needs: frontend_test
+    strategy:
+      matrix:
+        service: ['admin', 'application', 'auth']
+      fail-fast: false
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:v0.20.2
+            network: host
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-frontend-${{ matrix.service }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-frontend-${{ matrix.service }}-
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.service }}/frontend
+          file: ${{ matrix.service }}/frontend/Dockerfile
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          tags: ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-frontend:latest
+
   send_message:
     runs-on: ubuntu-latest
     needs: backend_tests
@@ -156,7 +244,7 @@ jobs:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
         with:
-          to: ${{ secrets.TELEGRAM_TO }}, ${{ secrets.TELEGRAM_TO_2 }}
+          to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             Задача успешна выполнена! 🥳
