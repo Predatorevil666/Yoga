@@ -111,62 +111,43 @@ jobs:
             ${{ matrix.service }}/backend/mypy.log
             ${{ matrix.service }}/backend/mypy.error.log
 
-  # frontend_test:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       service: ['admin', 'application', 'auth']
-  #   steps:
-  #     - uses: actions/checkout@v3
+  frontend_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ['admin', 'application', 'auth']
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: "18"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-  #     - name: Install dependencies
-  #       run: |
-  #         if [ "${{ matrix.service }}" = "application" ]; then
-  #           cd application/frontend
-  #         elif [ "${{ matrix.service }}" = "auth" ]; then
-  #           cd auth/frontend
-  #         else
-  #           cd admin/frontend
-  #         fi
-  #         npm install
+      - name: Install dependencies
+        working-directory: ${{ matrix.service }}/frontend
+        run: npm ci
 
-  #     - name: Lint with ESLint
-  #       run: |
-  #         if [ "${{ matrix.service }}" = "application" ]; then
-  #           cd application/frontend
-  #         elif [ "${{ matrix.service }}" = "auth" ]; then
-  #           cd auth/frontend
-  #         else
-  #           cd admin/frontend
-  #         fi
-  #         npx eslint . --ext .js,.jsx,.ts,.tsx
+      - name: Lint and Type check Frontend
+        working-directory: ${{ matrix.service }}/frontend
+        run: npm run lint > lint.log 2> lint.error.log || true
 
-  #     - name: Type check with TypeScript
-  #       run: |
-  #         if [ "${{ matrix.service }}" = "application" ]; then
-  #           cd application/frontend
-  #         elif [ "${{ matrix.service }}" = "auth" ]; then
-  #           cd auth/frontend
-  #         else
-  #           cd admin/frontend
-  #         fi
-  #         npx tsc --noEmit
-
-  #     - name: Run tests
-  #       run: |
-  #         if [ "${{ matrix.service }}" = "application" ]; then
-  #           cd application/frontend
-  #         elif [ "${{ matrix.service }}" = "auth" ]; then
-  #           cd auth/frontend
-  #         else
-  #           cd admin/frontend
-  #         fi
-  #         npm test
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-frontend-artifacts
+          path: |
+            ${{ matrix.service }}/frontend/lint.log
+            ${{ matrix.service }}/frontend/lint.error.log
 
   send_message:
     runs-on: ubuntu-latest
