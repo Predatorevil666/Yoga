@@ -166,7 +166,7 @@ jobs:
         with:
           driver-opts: |
             image=moby/buildkit:v0.20.2
-            network: host
+            network=host
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -210,7 +210,7 @@ jobs:
         with:
           driver-opts: |
             image=moby/buildkit:v0.20.2
-            network: host
+            network=host
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -239,7 +239,11 @@ jobs:
 
   send_message:
     runs-on: ubuntu-latest
-    needs: backend_tests
+    needs: 
+     - backend_tests
+     - frontend_test
+     - build_backends_and_push_to_ghcr
+     - build_frontends_and_push_to_ghcr
     steps:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
