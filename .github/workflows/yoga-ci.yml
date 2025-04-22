@@ -156,7 +156,7 @@ jobs:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
         with:
-          to: ${{ secrets.TELEGRAM_TO }}
+          to: ${{ secrets.TELEGRAM_TO }}, ${{ secrets.TELEGRAM_TO_2 }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             Задача успешна выполнена! 🥳
