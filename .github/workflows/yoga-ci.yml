@@ -105,7 +105,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.service }}-artifacts
+          name: ${{ matrix.service }}-backend-artifacts
           path: |
             ${{ matrix.service }}/backend/ruff.log
             ${{ matrix.service }}/backend/ruff.error.log
@@ -192,6 +192,16 @@ jobs:
           context: ${{ matrix.service }}/backend
           file: ${{ matrix.service }}/backend/Dockerfile
           push: true
+          build-args: |
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            TEST_DATABASE_URL=${{ secrets.TEST_DATABASE_URL }}
+            AUTH_BACKEND_DB_URL=${{ secrets.AUTH_BACKEND_DB_URL }}
+            DB_URL=${{ secrets.DB_URL }}
+            ECHO_SQL=${{ env.ECHO_SQL }}
+            PYTHONPATH=${{ env.PYTHONPATH }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           tags: ghcr.io/${{ secrets.GHCR_OWNER  }}/yoga-${{ matrix.service }}-backend:latest
@@ -236,6 +246,12 @@ jobs:
           context: ${{ matrix.service }}/frontend
           file: ${{ matrix.service }}/frontend/Dockerfile
           push: true
+          build-args: |
+            API_URL=${{ secrets.FRONTEND_API_URL }}
+            NGINX_PORT=${{ env.NGINX_PORT }}
+            AUTH_FRONTEND_PORT=${{ env.AUTH_FRONTEND_PORT }}
+            FRONTEND_PORT=${{ env.FRONTEND_PORT }}
+            ADMIN_FRONTEND_PORT=${{ env.ADMIN_FRONTEND_PORT }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           tags: ghcr.io/${{ secrets.GHCR_OWNER  }}/yoga-${{ matrix.service }}-frontend:latest
@@ -245,6 +261,9 @@ jobs:
     needs: 
      - build_backends_and_push_to_ghcr
      - build_frontends_and_push_to_ghcr
+    environment:
+      name: send_message
+
     steps:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
