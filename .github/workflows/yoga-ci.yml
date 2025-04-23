@@ -261,9 +261,6 @@ jobs:
     needs: 
      - build_backends_and_push_to_ghcr
      - build_frontends_and_push_to_ghcr
-    environment:
-      name: send_message
-
     steps:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
