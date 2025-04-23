@@ -108,6 +108,6 @@ docker-compose -f docker-compose.yml up -d
 
 ### 6. Контакты
 
-- DevOps: [Alexander Batogov](https://github.com/Predatorevil666)
+- DevOps:  [Alexander Batogov](https://github.com/Predatorevil666)
 
 
