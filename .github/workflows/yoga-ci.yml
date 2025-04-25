@@ -1,13 +1,18 @@
-name: yoga-ci
+name: yoga-ci/cd
 permissions:
   contents: read
   packages: write
 
 on:
   push:
-    branches: [main]
+    branches: 
+      - main
+      - dev
+      - feature/**
+    tags:
+      - 'v*.*.*'
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 env:
       NGINX_PORT: "80"
@@ -29,9 +34,34 @@ env:
       DB_URL: ${{ secrets.DB_URL }}
 
       PYTHONPATH: ${{ github.workspace }}
-      ECHO_SQL: "True"   
+      ECHO_SQL: "True"
+
+      DOCKER_REGISTRY: ghcr.io
+      DOCKER_NAMESPACE: ${{ secrets.GHCR_OWNER }}
+
+
 
 jobs:
+  determine-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+      - name: Determine Docker tag version
+        id: set-version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_REF" == refs/heads/main ]]; then
+            echo "version=latest" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_REF" == refs/heads/dev ]]; then
+            echo "version=dev" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_BRANCH=${GITHUB_REF#refs/heads/}
+            SANITIZED_BRANCH=${SANITIZED_BRANCH//\//-}
+            echo "version=${SANITIZED_BRANCH}" >> $GITHUB_OUTPUT
+          fi
+  
   backend_tests:
     runs-on: ubuntu-latest
     strategy:
@@ -155,7 +185,7 @@ jobs:
   build_backends_and_push_to_ghcr:
     name: Build and push backend Docker images
     runs-on: ubuntu-latest
-    needs: backend_tests
+    needs: [backend_tests, determine-version]
     strategy:
       matrix:
         service: ['admin', 'application', 'auth']
@@ -204,12 +234,14 @@ jobs:
             PYTHONPATH=${{ env.PYTHONPATH }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          tags: ghcr.io/${{ secrets.GHCR_OWNER  }}/yoga-${{ matrix.service }}-backend:latest
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:${{ needs.determine-version.outputs.version }}
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:latest
 
   build_frontends_and_push_to_ghcr:
     name: Build and push frontend Docker images
     runs-on: ubuntu-latest
-    needs: frontend_test
+    needs: [frontend_test, determine-version]
     strategy:
       matrix:
         service: ['admin', 'application', 'auth']
@@ -254,13 +286,15 @@ jobs:
             ADMIN_FRONTEND_PORT=${{ env.ADMIN_FRONTEND_PORT }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          tags: ghcr.io/${{ secrets.GHCR_OWNER  }}/yoga-${{ matrix.service }}-frontend:latest
-
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-frontend:${{ needs.determine-version.outputs.version }}
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-frontend:latest
   send_message:
     runs-on: ubuntu-latest
     needs: 
      - build_backends_and_push_to_ghcr
      - build_frontends_and_push_to_ghcr
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Send message to Telegram
         uses: appleboy/telegram-action@master
