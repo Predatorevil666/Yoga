@@ -7,7 +7,7 @@ SQLAlchemy==2.0.36
 sqlmodel==0.0.22
 uvicorn==0.32.0
 passlib==1.7.4
-pyjwt==2.9.0
+pyjwt==2.10.1
 aiogram==3.14.0
 ruff==0.3.7
 mypy==1.9.0
