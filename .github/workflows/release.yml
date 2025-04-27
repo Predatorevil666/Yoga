@@ -1,5 +1,9 @@
 name: Release Automation
 
+permissions:
+  contents: write  
+  packages: read
+
 on:
   push:
     tags:
