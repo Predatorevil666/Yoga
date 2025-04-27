@@ -27,16 +27,12 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          # Get previous tag
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          # Get the current tag
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
           
-          if [ -z "$PREV_TAG" ]; then
-            # If there's no previous tag, list all commits
-            git log --pretty=format:"- %s (%h)" > CHANGELOG.md
-          else
-            # List commits between tags
-            git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD > CHANGELOG.md
-          fi
+          # Just use the last 5 commits for the changelog
+          echo "Getting last 5 commits for changelog"
+          git log -n 5 --pretty=format:"- %s (%h)" > CHANGELOG.md
           
           # Convert changelog to single line with JSON escaping
           CHANGELOG_CONTENT=$(cat CHANGELOG.md | jq -Rs .)
