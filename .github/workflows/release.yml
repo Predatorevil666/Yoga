@@ -1,0 +1,80 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up environment variables
+        id: vars
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            # If there's no previous tag, list all commits
+            git log --pretty=format:"- %s (%h)" > CHANGELOG.md
+          else
+            # List commits between tags
+            git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD > CHANGELOG.md
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.VERSION }}
+          release_name: Release ${{ steps.vars.outputs.VERSION }}
+          body: |
+            ## Yoga Platform Release ${{ steps.vars.outputs.VERSION }}
+            **Release Date:** ${{ steps.vars.outputs.DATE }}
+            
+            ### What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### Docker Images
+            - Admin Backend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-backend:${{ steps.vars.outputs.VERSION }}`
+            - Admin Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-frontend:${{ steps.vars.outputs.VERSION }}`
+            - Application Backend: `ghcr.io/${{ github.repository_owner }}/yoga-application-backend:${{ steps.vars.outputs.VERSION }}`
+            - Application Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-application-frontend:${{ steps.vars.outputs.VERSION }}`
+            - Auth Backend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-backend:${{ steps.vars.outputs.VERSION }}`
+            - Auth Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-frontend:${{ steps.vars.outputs.VERSION }}`
+          draft: false
+          prerelease: false
+
+      - name: Send Release Notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🎉 RELEASE: Новый релиз ${{ steps.vars.outputs.VERSION }} опубликован! 🎉
+            
+            📅 Дата: ${{ steps.vars.outputs.DATE }}
+            👤 Автор: ${{ github.actor }}
+            
+            📋 Изменения:
+            ${{ steps.changelog.outputs.changelog | truncate(500) }}
+            
+            🔗 Ссылка на релиз: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.VERSION }} 

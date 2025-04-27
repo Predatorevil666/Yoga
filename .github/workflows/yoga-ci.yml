@@ -9,8 +9,7 @@ on:
       - main
       - dev
       - feature/**
-    tags:
-      - 'v*.*.*'
+   
   pull_request:
     branches: [main, dev]
 
@@ -302,8 +301,9 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            Задача успешна выполнена! 🥳
+            ${{ startsWith(github.ref, 'refs/tags/') && '🚀 CI/CD для тега завершен!' || '✅ CI/CD для коммита завершен!' }}
             Автор изменения: ${{ github.actor }}
             Сообщение коммита: '${{ github.event.commits[0].message }}'
             Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            ${{ startsWith(github.ref, 'refs/tags/') && format('Тег: {0}', github.ref_name) || '' }}
 
