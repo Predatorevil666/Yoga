@@ -210,7 +210,7 @@ jobs:
             ${{ runner.os }}-docker-backend-${{ matrix.service }}-
 
       - name: Log in to ghcr.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -266,7 +266,7 @@ jobs:
             ${{ runner.os }}-docker-frontend-${{ matrix.service }}-
 
       - name: Log in to ghcr.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
