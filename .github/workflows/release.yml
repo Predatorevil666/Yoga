@@ -34,9 +34,8 @@ jobs:
             git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD > CHANGELOG.md
           fi
           
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Read the contents of CHANGELOG.md and set it as an output
+          echo "changelog<<$(cat CHANGELOG.md)" >> $GITHUB_OUTPUT
 
       - name: Create Release
         id: create_release

@@ -4,8 +4,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/admin/backend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "python"
@@ -13,8 +14,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/application/backend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "python"
@@ -22,8 +24,9 @@ updates:
   - package-ecosystem: "pip"
     directory: "/auth/backend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "python"
@@ -32,8 +35,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/admin/frontend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "javascript"
@@ -41,8 +45,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/application/frontend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "javascript"
@@ -50,8 +55,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/auth/frontend"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "javascript"
@@ -60,8 +66,9 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    auto-merge: false 
     labels:
       - "dependencies"
       - "github-actions"
@@ -70,7 +77,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/admin/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker"
@@ -78,7 +87,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/application/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker"
@@ -86,7 +97,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/auth/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker"
@@ -94,7 +107,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/admin/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker"
@@ -102,7 +117,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/application/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker"
@@ -110,7 +127,9 @@ updates:
   - package-ecosystem: "docker"
     directory: "/auth/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+      open-pull-requests-limit: 2
+    auto-merge: false
     labels:
       - "dependencies"
       - "docker" 
