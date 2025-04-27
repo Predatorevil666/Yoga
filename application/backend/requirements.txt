@@ -4,7 +4,7 @@ psycopg2-binary==2.9.10
 pydantic-settings==2.6.0
 python-multipart==0.0.12
 SQLAlchemy==2.0.36
-sqlmodel==0.0.22
+sqlmodel==0.0.24
 uvicorn==0.32.0
 pytest==8.3.5
 httpx==0.28.1
