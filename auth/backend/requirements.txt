@@ -2,7 +2,7 @@ alembic==1.13.3
 fastapi==0.115.2
 psycopg2-binary==2.9.10
 pydantic-settings
-python-multipart==0.0.12
+python-multipart==0.0.20
 SQLAlchemy==2.0.36
 sqlmodel==0.0.22
 uvicorn==0.32.0
