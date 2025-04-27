@@ -3,7 +3,7 @@ fastapi==0.115.2
 psycopg2-binary==2.9.10
 pydantic-settings
 python-multipart==0.0.12
-SQLAlchemy==2.0.36
+SQLAlchemy==2.0.40
 sqlmodel==0.0.22
 uvicorn==0.32.0
 passlib==1.7.4
