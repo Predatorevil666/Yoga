@@ -75,6 +75,6 @@ jobs:
             👤 Автор: ${{ github.actor }}
             
             📋 Изменения:
-            ${{ steps.changelog.outputs.changelog | truncate(500) }}
+            ${{ steps.changelog.outputs.changelog }}
             
             🔗 Ссылка на релиз: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.VERSION }} 

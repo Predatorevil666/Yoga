@@ -9,7 +9,8 @@ on:
       - main
       - dev
       - feature/**
-   
+    tags:
+      - 'v*.*.*'
   pull_request:
     branches: [main, dev]
 
