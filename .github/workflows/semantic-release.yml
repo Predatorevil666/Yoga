@@ -1,0 +1,105 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+        id: semantic
+
+  build:
+    name: Build and Push Docker Images
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ['admin', 'application', 'auth']
+        type: ['backend', 'frontend']
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.service }}/${{ matrix.type }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-${{ matrix.type }}:${{ needs.release.outputs.new_release_version }}
+            ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-${{ matrix.type }}:latest
+
+  notify:
+    name: Send Notification
+    needs: [release, build]
+    if: needs.release.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Release Notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🚀 Автоматический релиз v${{ needs.release.outputs.new_release_version }} создан!
+            
+            👤 Автор: ${{ github.actor }}
+            📋 Репозиторий: ${{ github.repository }}
+            
+            ✅ Опубликованы Docker-образы:
+            - Admin Backend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-backend:${{ needs.release.outputs.new_release_version }}`
+            - Admin Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-frontend:${{ needs.release.outputs.new_release_version }}`
+            - Application Backend: `ghcr.io/${{ github.repository_owner }}/yoga-application-backend:${{ needs.release.outputs.new_release_version }}`
+            - Application Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-application-frontend:${{ needs.release.outputs.new_release_version }}`
+            - Auth Backend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-backend:${{ needs.release.outputs.new_release_version }}`
+            - Auth Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-frontend:${{ needs.release.outputs.new_release_version }}`
+            
+            🔍 Подробности: https://github.com/${{ github.repository }}/releases/latest 

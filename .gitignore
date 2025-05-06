@@ -17,4 +17,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-dependabot.yml
+.github/dependabot.yml
