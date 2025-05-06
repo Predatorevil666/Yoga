@@ -1,0 +1,141 @@
+name: CI/CD Summary
+
+on:
+  workflow_run:
+    workflows: ["Semantic Release", "yoga-ci/cd"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  send_summary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get workflow details
+        id: workflow_details
+        run: |
+          # Получаем информацию о текущем workflow_run
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          WORKFLOW_CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          WORKFLOW_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${WORKFLOW_ID}"
+          ACTOR="${{ github.event.workflow_run.actor.login }}"
+          HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+          
+          echo "workflow_name=${WORKFLOW_NAME}" >> $GITHUB_OUTPUT
+          echo "workflow_conclusion=${WORKFLOW_CONCLUSION}" >> $GITHUB_OUTPUT
+          echo "workflow_url=${WORKFLOW_URL}" >> $GITHUB_OUTPUT
+          echo "actor=${ACTOR}" >> $GITHUB_OUTPUT
+          echo "head_sha=${HEAD_SHA}" >> $GITHUB_OUTPUT
+          
+          # Получаем сообщение коммита
+          COMMIT_MSG=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${HEAD_SHA}" | \
+            jq -r '.commit.message')
+          echo "commit_message=${COMMIT_MSG}" >> $GITHUB_OUTPUT
+          
+          # Получаем информацию о релизе, если это был semantic-release
+          if [[ "${WORKFLOW_NAME}" == "Semantic Release" ]]; then
+            # Проверяем, был ли создан релиз
+            LATEST_RELEASE=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+            RELEASE_SHA=$(echo $LATEST_RELEASE | jq -r '.target_commitish')
+            
+            if [[ "${RELEASE_SHA}" == "${HEAD_SHA}" ]]; then
+              RELEASE_VERSION=$(echo $LATEST_RELEASE | jq -r '.tag_name')
+              RELEASE_URL=$(echo $LATEST_RELEASE | jq -r '.html_url')
+              echo "is_release=true" >> $GITHUB_OUTPUT
+              echo "release_version=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
+              echo "release_url=${RELEASE_URL}" >> $GITHUB_OUTPUT
+            else
+              echo "is_release=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "is_release=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check all workflows for this commit
+        id: check_workflows
+        run: |
+          HEAD_SHA="${{ steps.workflow_details.outputs.head_sha }}"
+          
+          # Получаем статус semantic-release workflow
+          SEMANTIC_RUNS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/semantic-release.yml/runs?head_sha=${HEAD_SHA}")
+          
+          SEMANTIC_COUNT=$(echo $SEMANTIC_RUNS | jq -r '.total_count')
+          if [[ "${SEMANTIC_COUNT}" != "0" ]]; then
+            SEMANTIC_STATUS=$(echo $SEMANTIC_RUNS | jq -r '.workflow_runs[0].conclusion')
+            SEMANTIC_URL=$(echo $SEMANTIC_RUNS | jq -r '.workflow_runs[0].html_url')
+            SEMANTIC_ID=$(echo $SEMANTIC_RUNS | jq -r '.workflow_runs[0].id')
+            echo "semantic_release_status=${SEMANTIC_STATUS}" >> $GITHUB_OUTPUT
+            echo "semantic_release_url=${SEMANTIC_URL}" >> $GITHUB_OUTPUT
+            echo "semantic_release_id=${SEMANTIC_ID}" >> $GITHUB_OUTPUT
+          else
+            echo "semantic_release_status=not_found" >> $GITHUB_OUTPUT
+          fi
+          
+          # Получаем статус yoga-ci-cd workflow
+          YOGA_RUNS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/yoga-ci-cd.yml/runs?head_sha=${HEAD_SHA}")
+          
+          YOGA_COUNT=$(echo $YOGA_RUNS | jq -r '.total_count')
+          if [[ "${YOGA_COUNT}" != "0" ]]; then
+            YOGA_STATUS=$(echo $YOGA_RUNS | jq -r '.workflow_runs[0].conclusion')
+            YOGA_URL=$(echo $YOGA_RUNS | jq -r '.workflow_runs[0].html_url')
+            YOGA_ID=$(echo $YOGA_RUNS | jq -r '.workflow_runs[0].id')
+            echo "yoga_ci_cd_status=${YOGA_STATUS}" >> $GITHUB_OUTPUT
+            echo "yoga_ci_cd_url=${YOGA_URL}" >> $GITHUB_OUTPUT
+            echo "yoga_ci_cd_id=${YOGA_ID}" >> $GITHUB_OUTPUT
+          else
+            echo "yoga_ci_cd_status=not_found" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if this is the last workflow to complete
+        id: check_last
+        run: |
+          # Отправляем итоговую сводку только если оба workflow завершились
+          CURRENT_WORKFLOW="${{ github.event.workflow_run.name }}"
+          CURRENT_ID="${{ github.event.workflow_run.id }}"
+          
+          SEMANTIC_STATUS="${{ steps.check_workflows.outputs.semantic_release_status }}"
+          YOGA_STATUS="${{ steps.check_workflows.outputs.yoga_ci_cd_status }}"
+          
+          SEMANTIC_ID="${{ steps.check_workflows.outputs.semantic_release_id }}"
+          YOGA_ID="${{ steps.check_workflows.outputs.yoga_ci_cd_id }}"
+          
+          # Проверяем, завершены ли оба workflow и является ли текущий workflow последним
+          if [[ "${SEMANTIC_STATUS}" != "not_found" && "${YOGA_STATUS}" != "not_found" ]]; then
+            if [[ "${CURRENT_WORKFLOW}" == "Semantic Release" && "${CURRENT_ID}" == "${SEMANTIC_ID}" && "${YOGA_STATUS}" == "success" ]]; then
+              echo "is_last=true" >> $GITHUB_OUTPUT
+            elif [[ "${CURRENT_WORKFLOW}" == "yoga-ci/cd" && "${CURRENT_ID}" == "${YOGA_ID}" && "${SEMANTIC_STATUS}" == "success" ]]; then
+              echo "is_last=true" >> $GITHUB_OUTPUT
+            else
+              echo "is_last=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "is_last=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Summary Notification
+        if: steps.check_last.outputs.is_last == 'true'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            📋 CI/CD Процесс Завершен
+            
+            👤 Автор: ${{ steps.workflow_details.outputs.actor }}
+            💬 Коммит: ${{ steps.workflow_details.outputs.commit_message }}
+            
+            📊 Итоговые статусы:
+            - 🚀 Semantic Release: ${{ steps.check_workflows.outputs.semantic_release_status }}
+            - 🔄 CI/CD: ${{ steps.check_workflows.outputs.yoga_ci_cd_status }}
+            
+            ${{ steps.check_workflows.outputs.is_release == 'true' && '✅ **Создан новый релиз:** ' || '❌ Релиз не был создан' }} ${{ steps.check_workflows.outputs.release_version || '' }}
+            
+            🔗 Ссылки:
+            ${{ steps.check_workflows.outputs.is_release == 'true' && format('- [Релиз]({0})', steps.check_workflows.outputs.release_url) || '' }}
+            - [Semantic Release](${{ steps.check_workflows.outputs.semantic_release_url }})
+            - [CI/CD](${{ steps.check_workflows.outputs.yoga_ci_cd_url }}) 
