@@ -18,3 +18,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 .github/dependabot.yml
+
+
+# Node.js dependencies
+node_modules/
+/node_modules
