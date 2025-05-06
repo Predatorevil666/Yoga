@@ -44,46 +44,13 @@ jobs:
         run: npx semantic-release
         id: semantic
 
-  build:
-    name: Build and Push Docker Images
-    needs: release
-    if: needs.release.outputs.new_release_published == 'true'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: ['admin', 'application', 'auth']
-        type: ['backend', 'frontend']
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ matrix.service }}/${{ matrix.type }}
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-${{ matrix.type }}:${{ needs.release.outputs.new_release_version }}
-            ghcr.io/${{ github.repository_owner }}/yoga-${{ matrix.service }}-${{ matrix.type }}:latest
-
   notify:
     name: Send Notification
-    needs: [release, build]
-    if: needs.release.outputs.new_release_published == 'true'
+    needs: [release]
     runs-on: ubuntu-latest
     steps:
       - name: Send Release Notification
+        if: needs.release.outputs.new_release_published == 'true'
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -94,12 +61,21 @@ jobs:
             👤 Автор: ${{ github.actor }}
             📋 Репозиторий: ${{ github.repository }}
             
-            ✅ Опубликованы Docker-образы:
-            - Admin Backend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-backend:${{ needs.release.outputs.new_release_version }}`
-            - Admin Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-admin-frontend:${{ needs.release.outputs.new_release_version }}`
-            - Application Backend: `ghcr.io/${{ github.repository_owner }}/yoga-application-backend:${{ needs.release.outputs.new_release_version }}`
-            - Application Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-application-frontend:${{ needs.release.outputs.new_release_version }}`
-            - Auth Backend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-backend:${{ needs.release.outputs.new_release_version }}`
-            - Auth Frontend: `ghcr.io/${{ github.repository_owner }}/yoga-auth-frontend:${{ needs.release.outputs.new_release_version }}`
+            Docker-образы будут собраны в workflow yoga-ci-cd
             
-            🔍 Подробности: https://github.com/${{ github.repository }}/releases/latest 
+            🔍 Подробности: https://github.com/${{ github.repository }}/releases/latest
+             
+      - name: Send Commit Notification
+        if: needs.release.outputs.new_release_published != 'true'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ℹ️ Новый коммит в ветку main не привел к релизу
+            
+            👤 Автор: ${{ github.actor }}
+            📋 Репозиторий: ${{ github.repository }}
+            💬 Сообщение коммита: ${{ github.event.head_commit.message }}
+            
+            🔍 Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }} 
