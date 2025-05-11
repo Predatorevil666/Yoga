@@ -259,6 +259,22 @@ jobs:
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:${{ env.VERSION }}
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:latest
+      
+      # Сканирование на уязвимости
+      - name: Scan Docker image for vulnerabilities
+        uses: docker/scan-action@v1
+        with:
+          image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:${{ env.VERSION }}
+          file: ${{ matrix.service }}/backend/Dockerfile
+          fail-build: false
+          severity-cutoff: high
+          output-format: table
+          
+      # Move cache for next job
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   build_frontends_and_push_to_ghcr:
     name: Build and push frontend Docker images
