@@ -262,13 +262,14 @@ jobs:
       
       # Сканирование на уязвимости
       - name: Scan Docker image for vulnerabilities
-        uses: docker/scan-action@v1
+        uses: aquasecurity/trivy-action@master
         with:
-          image: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:${{ env.VERSION }}
-          file: ${{ matrix.service }}/backend/Dockerfile
-          fail-build: false
-          severity-cutoff: high
-          output-format: table
+          image-ref: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-backend:${{ env.VERSION }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
           
       # Move cache for next job
       - name: Move cache
