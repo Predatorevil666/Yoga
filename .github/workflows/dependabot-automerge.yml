@@ -1,0 +1,52 @@
+name: Dependabot Auto-Merge and Tests
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  dependabot_checks:
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: yoga_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      # Здесь можно добавить дополнительные шаги для тестирования при необходимости
+      
+      # При успешном прохождении всех проверок автоматически мержим PR от Dependabot
+      - name: Dependabot Auto-Merge
+        if: ${{ success() && github.actor == 'dependabot[bot]' }}
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

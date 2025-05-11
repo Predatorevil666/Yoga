@@ -134,9 +134,3 @@ updates:
       - "github-actions"
 
 
-
-# Глобальная настройка переменных окружения для всех задач, включая обязательный пароль для PostgreSQL
-env:
-  POSTGRES_PASSWORD: "postgres"
-  POSTGRES_USER: "postgres"
-  POSTGRES_DB: "yoga_db" 
