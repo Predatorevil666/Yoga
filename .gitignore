@@ -17,7 +17,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.github/dependabot.yml
+# .github/dependabot.yml
 
 
 # Node.js dependencies
