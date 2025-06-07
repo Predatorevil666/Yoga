@@ -283,26 +283,26 @@ jobs:
           category: 'trivy-${{ matrix.service }}-backend'
       
       # Attempt to fix vulnerabilities automatically
-      - name: Auto-fix vulnerabilities
-        if: failure() && steps.trivy-scan.outcome == 'failure' && github.event_name != 'pull_request'
-        run: |
-          echo "Creating pull request to fix vulnerabilities..."
-          git config --global user.name "Security Bot"
-          git config --global user.email "security-bot@example.com"
-          git checkout -b fix-vulnerabilities-${{ matrix.service }}-$(date +%s)
+      # - name: Auto-fix vulnerabilities
+      #   if: failure() && steps.trivy-scan.outcome == 'failure' && github.event_name != 'pull_request'
+      #   run: |
+      #     echo "Creating pull request to fix vulnerabilities..."
+      #     git config --global user.name "Security Bot"
+      #     git config --global user.email "security-bot@example.com"
+      #     git checkout -b fix-vulnerabilities-${{ matrix.service }}-$(date +%s)
           
-          # Update base image in Dockerfile
-          sed -i 's/FROM python:3.12.6-slim/FROM python:3.12.6-slim-bookworm/g' ${{ matrix.service }}/backend/Dockerfile
+      #     # Update base image in Dockerfile
+      #     sed -i 's/FROM python:3.12.6-slim/FROM python:3.12.6-slim-bookworm/g' ${{ matrix.service }}/backend/Dockerfile
           
-          git add ${{ matrix.service }}/backend/Dockerfile
-          git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
-          git push -u origin HEAD
+      #     git add ${{ matrix.service }}/backend/Dockerfile
+      #     git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
+      #     git push -u origin HEAD
           
-          gh pr create --title "fix: security vulnerabilities in ${{ matrix.service }}" \
-                      --body "This PR fixes security vulnerabilities found by Trivy scanner. Please review the changes carefully before merging." \
-                      --label "security"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     gh pr create --title "fix: security vulnerabilities in ${{ matrix.service }}" \
+      #                 --body "This PR fixes security vulnerabilities found by Trivy scanner. Please review the changes carefully before merging." \
+      #                 --label "security"
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       # Move cache for next job
       - name: Move cache
