@@ -1,5 +1,5 @@
 # Этап сборки
-FROM python:3.12.6-slim-bookworm AS builder
+FROM python:3.12.6-slim AS builder
 
 # Установка build-essential для компиляции некоторых пакетов
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,18 +17,18 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Этап запуска
-FROM python:3.12.6-slim-bookworm AS runner
+FROM python:3.12.6-slim AS runner
 
 # Установка только необходимых зависимостей
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Копирование виртуального окружения из этапа сборки
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Создание непривилегированного пользователя
+    # Копирование виртуального окружения из этапа сборки
+    COPY --from=builder /opt/venv /opt/venv
+    ENV PATH="/opt/venv/bin:$PATH"
+    
+    # Создание непривилегир
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Копирование кода приложения
