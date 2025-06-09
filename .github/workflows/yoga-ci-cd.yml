@@ -300,7 +300,7 @@ jobs:
           git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
           
           # Установка URL репозитория с токеном для аутентификации
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.TEST_YOGA }}@github.com/${{ github.repository }}
           
           # Очистка незакоммиченных изменений
           git add .
@@ -308,11 +308,11 @@ jobs:
           
           git push -u origin HEAD
           
-          # Создание PR без метки, если метка "security" не существует
+          # Создание PR с использованием PAT
           gh pr create --title "fix: security vulnerabilities in ${{ matrix.service }}" \
                       --body "This PR fixes security vulnerabilities found by Trivy scanner. Please review the changes carefully before merging."
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TEST_YOGA }}
           
       # Move cache for next job
       - name: Move cache
