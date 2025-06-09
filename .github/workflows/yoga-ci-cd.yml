@@ -302,11 +302,15 @@ jobs:
           # Установка URL репозитория с токеном для аутентификации
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           
+          # Очистка незакоммиченных изменений
+          git add .
+          git reset --hard HEAD
+          
           git push -u origin HEAD
           
+          # Создание PR без метки, если метка "security" не существует
           gh pr create --title "fix: security vulnerabilities in ${{ matrix.service }}" \
-                      --body "This PR fixes security vulnerabilities found by Trivy scanner. Please review the changes carefully before merging." \
-                      --label "security"
+                      --body "This PR fixes security vulnerabilities found by Trivy scanner. Please review the changes carefully before merging."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
