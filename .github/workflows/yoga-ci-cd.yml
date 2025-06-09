@@ -293,11 +293,11 @@ jobs:
           git config --global user.email "security-bot@example.com"
           git checkout -b fix-vulnerabilities-${{ matrix.service }}-$(date +%s)
           
-          # Update base image in Dockerfile
-          sed -i 's/FROM python:3.12.6-slim/FROM python:3.12.6-slim-bookworm/g' ${{ matrix.service }}/backend/Dockerfile
+          # # Update base image in Dockerfile
+          # sed -i 's/FROM python:3.12.6-slim/FROM python:3.12.6-slim-bookworm/g' ${{ matrix.service }}/backend/Dockerfile
           
-          git add ${{ matrix.service }}/backend/Dockerfile
-          git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
+          # git add ${{ matrix.service }}/backend/Dockerfile
+          # git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
           
           # Установка URL репозитория с токеном для аутентификации
           git remote set-url origin https://x-access-token:${{ secrets.TEST_YOGA }}@github.com/${{ github.repository }}
