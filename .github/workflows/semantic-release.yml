@@ -44,38 +44,38 @@ jobs:
         run: npx semantic-release
         id: semantic
 
-  notify:
-    name: Send Notification
-    needs: [release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Release Notification
-        if: needs.release.outputs.new_release_published == 'true'
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            🚀 Автоматический релиз v${{ needs.release.outputs.new_release_version }} создан!
+  # notify:
+  #   name: Send Notification
+  #   needs: [release]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Send Release Notification
+  #       if: needs.release.outputs.new_release_published == 'true'
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           🚀 Автоматический релиз v${{ needs.release.outputs.new_release_version }} создан!
             
-            👤 Автор: ${{ github.actor }}
-            📋 Репозиторий: ${{ github.repository }}
+  #           👤 Автор: ${{ github.actor }}
+  #           📋 Репозиторий: ${{ github.repository }}
             
-            Docker-образы будут собраны в workflow yoga-ci-cd
+  #           Docker-образы будут собраны в workflow yoga-ci-cd
             
-            🔍 Подробности: https://github.com/${{ github.repository }}/releases/latest
+  #           🔍 Подробности: https://github.com/${{ github.repository }}/releases/latest
              
-      - name: Send Commit Notification
-        if: needs.release.outputs.new_release_published != 'true'
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ℹ️ Новый коммит в ветку main не привел к релизу
+  #     - name: Send Commit Notification
+  #       if: needs.release.outputs.new_release_published != 'true'
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           ℹ️ Новый коммит в ветку main не привел к релизу
             
-            👤 Автор: ${{ github.actor }}
-            📋 Репозиторий: ${{ github.repository }}
-            💬 Сообщение коммита: ${{ github.event.head_commit.message }}
+  #           👤 Автор: ${{ github.actor }}
+  #           📋 Репозиторий: ${{ github.repository }}
+  #           💬 Сообщение коммита: ${{ github.event.head_commit.message }}
             
-            🔍 Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }} 
+  #           🔍 Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }} 
