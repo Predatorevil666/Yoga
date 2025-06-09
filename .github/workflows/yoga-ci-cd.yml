@@ -1,6 +1,6 @@
 name: yoga-ci/cd
 permissions:
-  contents: read
+  contents: write
   packages: write
   security-events: write
   actions: read
