@@ -390,68 +390,68 @@ jobs:
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-frontend:${{ env.VERSION }}
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_NAMESPACE }}/yoga-${{ matrix.service }}-frontend:latest
 
-  notify:
-    name: Send Build Notification
-    needs: [build_backends_and_push_to_ghcr, build_frontends_and_push_to_ghcr]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Check build status
-        id: check_status
-        run: |
-          if [[ "${{ needs.build_backends_and_push_to_ghcr.result }}" == "success" && "${{ needs.build_frontends_and_push_to_ghcr.result }}" == "success" ]]; then
-            echo "build_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "build_status=failure" >> $GITHUB_OUTPUT
-          fi
+  # notify:
+  #   name: Send Build Notification
+  #   needs: [build_backends_and_push_to_ghcr, build_frontends_and_push_to_ghcr]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - name: Check build status
+  #       id: check_status
+  #       run: |
+  #         if [[ "${{ needs.build_backends_and_push_to_ghcr.result }}" == "success" && "${{ needs.build_frontends_and_push_to_ghcr.result }}" == "success" ]]; then
+  #           echo "build_status=success" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "build_status=failure" >> $GITHUB_OUTPUT
+  #         fi
 
-      - name: Set event details
-        id: event_details
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
-            echo "event_type=semantic-release" >> $GITHUB_OUTPUT
-            echo "version=${{ needs.check_semantic_release.outputs.new_release_version }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "event_type=tag" >> $GITHUB_OUTPUT
-            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/heads/dev ]]; then
-            echo "event_type=dev" >> $GITHUB_OUTPUT
-            echo "version=dev" >> $GITHUB_OUTPUT
-          else
-            BRANCH=${GITHUB_REF#refs/heads/}
-            echo "event_type=branch" >> $GITHUB_OUTPUT
-            echo "version=${BRANCH}" >> $GITHUB_OUTPUT
-          fi
+  #     - name: Set event details
+  #       id: event_details
+  #       run: |
+  #         if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+  #           echo "event_type=semantic-release" >> $GITHUB_OUTPUT
+  #           echo "version=${{ needs.check_semantic_release.outputs.new_release_version }}" >> $GITHUB_OUTPUT
+  #         elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+  #           echo "event_type=tag" >> $GITHUB_OUTPUT
+  #           echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+  #         elif [[ "${{ github.ref }}" == refs/heads/dev ]]; then
+  #           echo "event_type=dev" >> $GITHUB_OUTPUT
+  #           echo "version=dev" >> $GITHUB_OUTPUT
+  #         else
+  #           BRANCH=${GITHUB_REF#refs/heads/}
+  #           echo "event_type=branch" >> $GITHUB_OUTPUT
+  #           echo "version=${BRANCH}" >> $GITHUB_OUTPUT
+  #         fi
 
-      - name: Send Success Notification
-        if: steps.check_status.outputs.build_status == 'success'
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ✅ CI/CD успешно завершен!
+  #     - name: Send Success Notification
+  #       if: steps.check_status.outputs.build_status == 'success'
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           ✅ CI/CD успешно завершен!
             
-            📦 Тип события: ${{ steps.event_details.outputs.event_type }}
-            🏷️ Версия: ${{ steps.event_details.outputs.version }}
-            👤 Автор: ${{ github.actor }}
-            💬 Коммит: ${{ github.event.head_commit.message || 'Н/Д' }}
+  #           📦 Тип события: ${{ steps.event_details.outputs.event_type }}
+  #           🏷️ Версия: ${{ steps.event_details.outputs.version }}
+  #           👤 Автор: ${{ github.actor }}
+  #           💬 Коммит: ${{ github.event.head_commit.message || 'Н/Д' }}
             
-            🔗 Ссылка на workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #           🔗 Ссылка на workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - name: Send Failure Notification
-        if: steps.check_status.outputs.build_status == 'failure'
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ❌ CI/CD завершился с ошибкой!
+  #     - name: Send Failure Notification
+  #       if: steps.check_status.outputs.build_status == 'failure'
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           ❌ CI/CD завершился с ошибкой!
             
-            📦 Тип события: ${{ steps.event_details.outputs.event_type }}
-            🏷️ Версия: ${{ steps.event_details.outputs.version }}
-            👤 Автор: ${{ github.actor }}
-            💬 Коммит: ${{ github.event.head_commit.message || 'Н/Д' }}
+  #           📦 Тип события: ${{ steps.event_details.outputs.event_type }}
+  #           🏷️ Версия: ${{ steps.event_details.outputs.version }}
+  #           👤 Автор: ${{ github.actor }}
+  #           💬 Коммит: ${{ github.event.head_commit.message || 'Н/Д' }}
             
-            🔗 Ссылка на workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #           🔗 Ссылка на workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
