@@ -298,6 +298,10 @@ jobs:
           
           git add ${{ matrix.service }}/backend/Dockerfile
           git commit -m "fix: update base image to fix vulnerabilities in ${{ matrix.service }}"
+          
+          # Установка URL репозитория с токеном для аутентификации
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          
           git push -u origin HEAD
           
           gh pr create --title "fix: security vulnerabilities in ${{ matrix.service }}" \
