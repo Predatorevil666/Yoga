@@ -1,5 +1,5 @@
 # Этап сборки
-FROM python:3.12.6-slim AS builder
+FROM python:3.12.6-slim-bookworm AS builder
 
 # Установка build-essential для компиляции некоторых пакетов
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Этап запуска
-FROM python:3.12.6-slim AS runner
+FROM python:3.12.6-slim-bookworm AS runner
 
 # Установка только необходимых зависимостей
 RUN apt-get update && apt-get install -y --no-install-recommends \
